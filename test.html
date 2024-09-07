@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Europe Map</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <style>
+        .country {
+            stroke: white;
+            stroke-width: 0.5px;
+            fill: lightblue;
+        }
+
+        .label {
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+            fill: black;
+            text-anchor: middle;
+            display: none;
+        }
+
+        .country:hover {
+            fill: steelblue;
+        }
+
+        .country:hover + .label {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <svg width="1000" height="800"></svg>
+    <script>
+        const width = 1000;
+        const height = 800;
+
+        const svg = d3.select("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+        const projection = d3.geoMercator()
+            .center([20, 50])  // Adjusted to show full Europe and southern regions
+            .scale(700)
+            .translate([width / 2, height / 2]);
+
+        const path = d3.geoPath().projection(projection);
+
+        // Load GeoJSON data and draw the map
+        d3.json("custom.geo.json").then(function(geojson) {
+            // Draw countries
+            svg.selectAll("path")
+                .data(geojson.features)
+                .enter().append("path")
+                .attr("class", "country")
+                .attr("d", path)
+                .append("title")
+                .text(d => d.properties.name);
+
+            // Add labels
+            svg.selectAll(".label")
+                .data(geojson.features)
+                .enter().append("text")
+                .attr("class", "label")
+                .attr("transform", function(d) {
+                    return "translate(" + path.centroid(d) + ")";
+                })
+                .text(d => d.properties.name)
+                .attr("dy", ".35em");
+
+            // Show label only when hovering over the country
+            svg.selectAll(".country")
+                .on("mouseover", function(event, d) {
+                    d3.select(this).attr("fill", "steelblue");
+                    svg.selectAll(".label")
+                        .filter(function(labelD) { return labelD === d; })
+                        .style("display", "block");
+                })
+                .on("mouseout", function(event, d) {
+                    d3.select(this).attr("fill", "lightblue");
+                    svg.selectAll(".label")
+                        .filter(function(labelD) { return labelD === d; })
+                        .style("display", "none");
+                });
+        });
+    </script>
+</body>
+</html>
