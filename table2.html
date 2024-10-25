@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D3.js Tabs: Enhanced Bar & Line Charts</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .tab {
+            display: inline-block;
+            padding: 12px 24px;
+            cursor: pointer;
+            background-color: #eee;
+            margin-right: 5px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .tab:hover {
+            background-color: #ddd;
+        }
+
+        .tab.active {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .chart-container {
+            margin-top: 20px;
+            position: relative;
+        }
+
+        .chart {
+            display: none;
+        }
+
+        .chart.active {
+            display: block;
+        }
+
+        .tooltip {
+            position: absolute;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border-radius: 4px;
+            font-size: 12px;
+            pointer-events: none;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+            gap: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="tabs">
+            <div class="tab active" data-target="#barChart">Total Cases (Bar Chart)</div>
+            <div class="tab" data-target="#lineChart">Case Trend (Line Chart)</div>
+        </div>
+
+        <div class="chart-container">
+            <div id="barChart" class="chart active"></div>
+            <div id="lineChart" class="chart"></div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: steelblue"></div>
+                <span>Asia</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: orange"></div>
+                <span>Europe</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample Data
+        const dataAsiaEurope = {
+            asia: { total: [3000, 4000, 5000], trend: [100, 200, 300, 400, 500] },
+            europe: { total: [3500, 4500, 6000], trend: [150, 250, 350, 450, 550] },
+            countries: ['Country A', 'Country B', 'Country C'],
+            dates: ['Jan', 'Feb', 'Mar', 'Apr', 'May']
+        };
+
+        const margin = {top: 30, right: 30, bottom: 60, left: 60};
+        const width = 700 - margin.left - margin.right;
+        const height = 400 - margin.top - margin.bottom;
+
+        // Create tooltip
+        const tooltip = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
+
+        // Bar Chart
+        function drawBarChart() {
+            d3.select("#barChart").html("");
+            
+            const svg = d3.select("#barChart").append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            // Add grid lines
+            svg.append("g")
+                .attr("class", "grid")
+                .attr("opacity", 0.1)
+                .call(d3.axisLeft(d3.scaleLinear().domain([0, d3.max([...dataAsiaEurope.asia.total, ...dataAsiaEurope.europe.total])])
+                    .range([height, 0]))
+                    .tickSize(-width)
+                    .tickFormat(""));
+
+            const x = d3.scaleBand()
+                .domain(dataAsiaEurope.countries)
+                .range([0, width])
+                .padding(0.2);
+
+            const y = d3.scaleLinear()
+                .domain([0, d3.max([...dataAsiaEurope.asia.total, ...dataAsiaEurope.europe.total])])
+                .range([height, 0]);
+
+            // Add bars with animation
+            svg.selectAll(".bar-asia")
+                .data(dataAsiaEurope.asia.total)
+                .enter().append("rect")
+                .attr("class", "bar-asia")
+                .attr("x", (d, i) => x(dataAsiaEurope.countries[i]))
+                .attr("width", x.bandwidth() / 2)
+                .attr("y", height)
+                .attr("height", 0)
+                .attr("fill", "steelblue")
+                .on("mouseover", function(event, d) {
+                    tooltip.transition()
+                        .duration(200)
+                        .style("opacity", .9);
+                    tooltip.html(`Asia: ${d}`)
+                        .style("left", (event.pageX + 5) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function() {
+                    tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0);
+                })
+                .transition()
+                .duration(1000)
+                .attr("y", d => y(d))
+                .attr("height", d => height - y(d));
+
+            svg.selectAll(".bar-europe")
+                .data(dataAsiaEurope.europe.total)
+                .enter().append("rect")
+                .attr("class", "bar-europe")
+                .attr("x", (d, i) => x(dataAsiaEurope.countries[i]) + x.bandwidth() / 2)
+                .attr("width", x.bandwidth() / 2)
+                .attr("y", height)
+                .attr("height", 0)
+                .attr("fill", "orange")
+                .on("mouseover", function(event, d) {
+                    tooltip.transition()
+                        .duration(200)
+                        .style("opacity", .9);
+                    tooltip.html(`Europe: ${d}`)
+                        .style("left", (event.pageX + 5) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function() {
+                    tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0);
+                })
+                .transition()
+                .duration(1000)
+                .attr("y", d => y(d))
+                .attr("height", d => height - y(d));
+
+            // Add axes
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x))
+                .selectAll("text")
+                .style("text-anchor", "middle");
+
+            svg.append("g")
+                .call(d3.axisLeft(y));
+
+            // Add labels
+            svg.append("text")
+                .attr("text-anchor", "middle")
+                .attr("x", width/2)
+                .attr("y", height + margin.bottom - 10)
+                .text("Countries");
+
+            svg.append("text")
+                .attr("text-anchor", "middle")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -margin.left + 20)
+                .attr("x", -height/2)
+                .text("Total Cases");
+        }
+
+        // Line Chart
+        function drawLineChart() {
+            d3.select("#lineChart").html("");
+            
+            const svg = d3.select("#lineChart").append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            // Add grid lines
+            svg.append("g")
+                .attr("class", "grid")
+                .attr("opacity", 0.1)
+                .call(d3.axisLeft(d3.scaleLinear().domain([0, d3.max([...dataAsiaEurope.asia.trend, ...dataAsiaEurope.europe.trend])])
+                    .range([height, 0]))
+                    .tickSize(-width)
+                    .tickFormat(""));
+
+            const x = d3.scalePoint()
+                .domain(dataAsiaEurope.dates)
+                .range([0, width]);
+
+            const y = d3.scaleLinear()
+                .domain([0, d3.max([...dataAsiaEurope.asia.trend, ...dataAsiaEurope.europe.trend])])
+                .range([height, 0]);
+
+            const lineAsia = d3.line()
+                .x((d, i) => x(dataAsiaEurope.dates[i]))
+                .y(d => y(d));
+
+            const lineEurope = d3.line()
+                .x((d, i) => x(dataAsiaEurope.dates[i]))
+                .y(d => y(d));
+
+            // Add lines with animation
+            const pathAsia = svg.append("path")
+                .datum(dataAsiaEurope.asia.trend)
+                .attr("fill", "none")
+                .attr("stroke", "steelblue")
+                .attr("stroke-width", 2);
+
+            const pathEurope = svg.append("path")
+                .datum(dataAsiaEurope.europe.trend)
+                .attr("fill", "none")
+                .attr("stroke", "orange")
+                .attr("stroke-width", 2);
+
+            // Animate lines
+            const totalLength = pathAsia.node().getTotalLength();
+            
+            pathAsia
+                .attr("stroke-dasharray", totalLength + " " + totalLength)
+                .attr("stroke-dashoffset", totalLength)
+                .attr("d", lineAsia)
+                .transition()
+                .duration(2000)
+                .attr("stroke-dashoffset", 0);
+
+            pathEurope
+                .attr("stroke-dasharray", totalLength + " " + totalLength)
+                .attr("stroke-dashoffset", totalLength)
+                .attr("d", lineEurope)
+                .transition()
+                .duration(2000)
+                .attr("stroke-dashoffset", 0);
+
+            // Add data points with tooltips
+            svg.selectAll(".dot-asia")
+                .data(dataAsiaEurope.asia.trend)
+                .enter().append("circle")
+                .attr("class", "dot-asia")
+                .attr("cx", (d, i) => x(dataAsiaEurope.dates[i]))
+                .attr("cy", d => y(d))
+                .attr("r", 5)
+                .attr("fill", "steelblue")
+                .on("mouseover", function(event, d) {
+                    tooltip.transition()
+                        .duration(200)
+                        .style("opacity", .9);
+                    tooltip.html(`Asia: ${d}`)
+                        .style("left", (event.pageX + 5) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function() {
+                    tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0);
+                });
+
+            svg.selectAll(".dot-europe")
+                .data(dataAsiaEurope.europe.trend)
+                .enter().append("circle")
+                .attr("class", "dot-europe")
+                .attr("cx", (d, i) => x(dataAsiaEurope.dates[i]))
+                .attr("cy", d => y(d))
+                .attr("r", 5)
+                .attr("fill", "orange")
+                .on("mouseover", function(event, d) {
+                    tooltip.transition()
+                        .duration(200)
+                        .style("opacity", .9);
+                    tooltip.html(`Europe: ${d}`)
+                        .style("left", (event.pageX + 5) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function() {
+                    tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0);
+                });
+
+            // Add axes
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x));
+
+            svg.append("g")
+                .call(d3.axisLeft(y));
+
+            // Add labels
+            svg.append("text")
+                .attr("text-anchor", "middle")
+                .attr("x", width/2)
+                .attr("y", height + margin.bottom - 10)
+                .text("Months");
+
+            svg.append("text")
+                .attr("text-anchor", "middle")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -margin.left + 20)
+                .attr("x", -height/2)
+                .text("Cases");
+        }
+
+        // Draw both charts initially
+        drawBarChart();
+        drawLineChart();
+
+        // Tab switching logic
+        d3.selectAll(".tab").on("click", function() {
+            d3.selectAll(".tab").classed("active", false);
+            d3.selectAll(".chart").classed("active", false);
+            
+            const target = d3.select(this).attr("data-target");
+            d3.select(this).classed("active", true);
+            d3.select(target).classed("active", true);
+        });
+    </script>
+</body>
+</html>
