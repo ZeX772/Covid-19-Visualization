@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Globe with Zoom Buttons in the Top-Right</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://unpkg.com/topojson@3"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 20px;
+    }
+    canvas {
+      border: 1px solid #ccc;
+      margin-bottom: 20px;
+    }
+    #searchBar {
+      width: 250px;
+      padding: 10px;
+      border-radius: 20px;
+      border: 2px solid #007bff;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+      font-size: 16px;
+      margin-top: 20px;
+      outline: none;
+    }
+    #searchBar:hover, #searchBar:focus {
+      border-color: #0056b3;
+    }
+    select {
+      padding: 10px;
+      font-size: 16px;
+      margin: 10px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+      background-color: #f0f0f0;
+    }
+    select:hover {
+      background-color: #e0e0e0;
+    }
+    #tooltip {
+      position: absolute;
+      background-color: #222;
+      color: #fff;
+      padding: 5px;
+      border-radius: 5px;
+      font-size: 12px;
+      pointer-events: none;
+      display: none;
+      z-index: 10;
+    }
+    .dropdown {
+      display: inline-block;
+    }
+    .button-like {
+      font-size: 18px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      border: 2px solid #0056b3;
+      border-radius: 5px;
+      padding: 5px 10px;
+      margin: 5px;
+      display: inline-block;
+    }
+    .button-like:hover {
+      background-color: #0056b3;
+    }
+    #zoomControls {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="globeCanvas"></canvas>
+  <div id="tooltip"></div> <!-- Hover tooltip for country name -->
+
+  <!-- Zoom controls in the top-right corner -->
+  <div id="zoomControls">
+    <span class="button-like" id="zoomIn">+</span>
+    <span class="button-like" id="zoomOut">-</span>
+  </div>
+
+  <!-- Search and Dropdowns -->
+  <div style="margin-top: 20px;">
+    <input type="text" id="searchBar" placeholder="Search for a country (case-insensitive)">
+    <div class="dropdown">
+      <select id="europeDropdown">
+        <option value="">Select a country in Europe</option>
+      </select>
+      <select id="asiaDropdown">
+        <option value="">Select a country in Asia</option>
+      </select>
+    </div>
+  </div>
+
+  <script>
+    // Set up canvas and dimensions (making it bigger)
+    const width = 1000;
+    const height = 700;
+    const canvas = d3.select("#globeCanvas")
+      .attr("width", width)
+      .attr("height", height)
+      .node();
+    const context = canvas.getContext("2d");
+
+    // Tooltip for hover
+    const tooltip = d3.select("#tooltip");
+
+    // Set up projection for the globe
+    const projection = d3.geoOrthographic()
+      .scale(350) // Increased scale for a bigger globe
+      .translate([width / 2, height / 2])
+      .clipAngle(90); // Makes the globe round
+
+    const path = d3.geoPath(projection, context);
+
+    // Initialize zoom behavior
+    let scaleFactor = 1;
+
+    // Color theme from Nightingale guide
+    const colors = {
+      europe: '#1f77b4', // Blue
+      asia: '#ff7f0e',   // Orange with white outlines
+      others: '#7f7f7f', // Grey
+      ocean: '#e5f5f9',  // Light blue
+      borders: '#d62728', // Dark red for borders
+      highlight: '#ffcc00' // Yellow highlight
+    };
+
+    // Full list of countries for Europe and Asia
+    const europeCountries = [
+      'Albania', 'Andorra', 'Armenia', 'Austria', 'Azerbaijan', 'Belarus', 'Belgium',
+      'Bosnia and Herzegovina', 'Bulgaria', 'Croatia', 'Cyprus', 'Czech Republic',
+      'Denmark', 'Estonia', 'Finland', 'France', 'Georgia', 'Germany', 'Greece',
+      'Hungary', 'Iceland', 'Ireland', 'Italy', 'Kazakhstan', 'Kosovo', 'Latvia',
+      'Liechtenstein', 'Lithuania', 'Luxembourg', 'Malta', 'Moldova', 'Monaco',
+      'Montenegro', 'Netherlands', 'North Macedonia', 'Norway', 'Poland', 'Portugal',
+      'Romania', 'Russia', 'San Marino', 'Serbia', 'Slovakia', 'Slovenia', 'Spain',
+      'Sweden', 'Switzerland', 'Turkey', 'Ukraine', 'United Kingdom', 'Vatican City'
+    ];
+
+    const asiaCountries = [
+      'Afghanistan', 'Armenia', 'Azerbaijan', 'Bahrain', 'Bangladesh', 'Bhutan', 'Brunei',
+      'Cambodia', 'China', 'Cyprus', 'Georgia', 'India', 'Indonesia', 'Iran', 'Iraq',
+      'Israel', 'Japan', 'Jordan', 'Kazakhstan', 'Kuwait', 'Kyrgyzstan', 'Laos',
+      'Lebanon', 'Malaysia', 'Maldives', 'Mongolia', 'Myanmar', 'Nepal', 'North Korea',
+      'Oman', 'Pakistan', 'Palestine', 'Philippines', 'Qatar', 'Russia', 'Saudi Arabia',
+      'Singapore', 'South Korea', 'Sri Lanka', 'Syria', 'Taiwan', 'Tajikistan',
+      'Thailand', 'Timor-Leste', 'Turkey', 'Turkmenistan', 'UAE', 'Uzbekistan', 'Vietnam', 'Yemen'
+    ];
+
+    // Load TopoJSON world data
+    d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(world => {
+      const land = topojson.feature(world, world.objects.countries).features;
+      const borders = topojson.mesh(world, world.objects.countries, (a, b) => a !== b);
+
+      // Function to categorize countries by region
+      function getCountryColor(countryName) {
+        if (europeCountries.includes(countryName)) {
+          return colors.europe; // Blue for Europe
+        } else if (asiaCountries.includes(countryName)) {
+          return colors.asia; // Orange for Asia
+        } else {
+          return colors.others; // Grey for Others
+        }
+      }
+
+      // Render the globe with countries and borders
+      function render() {
+        context.clearRect(0, 0, width, height);
+
+        // Draw the globe background
+        context.beginPath();
+        path({ type: "Sphere" });
+        context.fillStyle = colors.ocean; // Light blue for the ocean
+        context.fill();
+        context.strokeStyle = colors.borders; // Dark red for globe outline
+        context.stroke();
+
+        // Draw countries with colors based on region
+        land.forEach(feature => {
+          context.beginPath();
+          path(feature);
+          context.fillStyle = getCountryColor(feature.properties.name); // Color based on region
+          context.fill();
+          // If the country is in Asia, give it a white border
+          if (asiaCountries.includes(feature.properties.name)) {
+            context.strokeStyle = "#fff"; // White borders for Asia
+          } else {
+            context.strokeStyle = "#fff"; // White borders for other countries
+          }
+          context.stroke();
+        });
+
+        // Draw borders between countries
+        context.beginPath();
+        path(borders);
+        context.strokeStyle = colors.borders; // Dark red for borders
+        context.lineWidth = 0.5;
+        context.stroke();
+
+        // Add directional arrows inside the canvas
+        context.font = "40px Arial"; // Larger font for the arrows
+        context.fillText("↑", width / 2 - 10, 40); // North
+        context.fillText("↓", width / 2 - 10, height - 30); // South
+        context.fillText("←", 30, height / 2 + 10); // West
+        context.fillText("→", width - 40, height / 2 + 10); // East
+      }
+
+      // Initial render of the globe
+      render();
+
+      // Function to get mouse position and convert to geographic coordinates
+      const getGeographicCoordinates = (event) => {
+        const [mouseX, mouseY] = d3.pointer(event);
+        return projection.invert([mouseX, mouseY]); // Convert pixel coordinates to geographical coordinates
+      };
+
+      // Function to find the country at the clicked coordinates
+      const getCountryAtCoordinates = (coordinates) => {
+        return land.find(country => d3.geoContains(country, coordinates)); // Find the country containing the clicked point
+      };
+
+      // Function to smoothly rotate the globe to the selected country
+      function rotateToCountry(targetCoordinates) {
+        const [targetLongitude, targetLatitude] = targetCoordinates;
+
+        // Current rotation values
+        const currentRotation = projection.rotate();
+
+        // Interpolate between the current rotation and the target
+        d3.transition()
+          .duration(1000) // Duration of the rotation animation
+          .tween("rotate", () => {
+            const rotationInterpolator = d3.interpolate(currentRotation, [-targetLongitude, -targetLatitude]);
+            return (t) => {
+              projection.rotate(rotationInterpolator(t)); // Update the projection's rotation
+              render(); // Re-render the globe with the updated rotation
+            };
+          });
+      }
+
+      // Function to rotate to a specific country by name
+      function rotateToCountryByName(countryName) {
+        const countryFeature = land.find(d => d.properties.name.toLowerCase() === countryName.toLowerCase());
+        if (countryFeature) {
+          const centroid = d3.geoCentroid(countryFeature);
+          rotateToCountry(centroid);
+        }
+      }
+
+      // Dropdowns for Europe and Asia
+      const europeDropdown = d3.select("#europeDropdown");
+      const asiaDropdown = d3.select("#asiaDropdown");
+
+      // Populate dropdowns with countries
+      europeCountries.forEach(countryName => {
+        europeDropdown.append("option").text(countryName).attr("value", countryName);
+      });
+      asiaCountries.forEach(countryName => {
+        asiaDropdown.append("option").text(countryName).attr("value", countryName);
+      });
+
+      // Add event listeners for dropdowns
+      europeDropdown.on("change", function() {
+        const selectedCountry = this.value;
+        if (selectedCountry) {
+          rotateToCountryByName(selectedCountry);
+          asiaDropdown.property("value", ""); // Reset Asia dropdown to default when a country is selected from Europe
+          d3.select("#searchBar").property("value", ""); // Clear the search bar when a country is selected
+        }
+      });
+
+      asiaDropdown.on("change", function() {
+        const selectedCountry = this.value;
+        if (selectedCountry) {
+          rotateToCountryByName(selectedCountry);
+          europeDropdown.property("value", ""); // Reset Europe dropdown to default when a country is selected from Asia
+          d3.select("#searchBar").property("value", ""); // Clear the search bar when a country is selected
+        }
+      });
+
+      // Add hover functionality
+      d3.select(canvas).on("mousemove", function(event) {
+        const geographicCoordinates = getGeographicCoordinates(event);
+        const hoveredCountry = getCountryAtCoordinates(geographicCoordinates);
+
+        if (hoveredCountry) {
+          const countryName = hoveredCountry.properties.name;
+
+          // Highlight the country being hovered
+          render(); // Reset the map rendering
+          context.beginPath();
+          path(hoveredCountry);
+          context.fillStyle = colors.highlight; // Highlight color for hover
+          context.fill();
+          // Add white outlines for Asian countries
+          if (asiaCountries.includes(hoveredCountry.properties.name)) {
+            context.strokeStyle = "#fff"; // White borders for Asia countries
+          } else {
+            context.strokeStyle = "#fff"; // White borders for others
+          }
+          context.stroke();
+
+          // Show hover tooltip with country name
+          const [mouseX, mouseY] = d3.pointer(event);
+          tooltip.style("display", "block")
+            .style("left", `${mouseX + 10}px`)
+            .style("top", `${mouseY + 10}px`)
+            .text(countryName);
+        } else {
+          // Hide the tooltip if not hovering over a country
+          tooltip.style("display", "none");
+          render(); // Re-render map when no country is hovered
+        }
+      });
+
+      // Add click functionality to rotate to clicked country
+      d3.select(canvas).on("click", function(event) {
+        const [mouseX, mouseY] = d3.pointer(event);
+
+        // Check if the user clicked the zoom buttons or directional arrows
+        if (mouseX > width / 2 - 30 && mouseX < width / 2 + 30 && mouseY < 60) {
+          // User clicked the North arrow
+          projection.rotate([projection.rotate()[0], projection.rotate()[1] + 10]);
+          render();
+          return;
+        } else if (mouseX > width / 2 - 30 && mouseX < width / 2 + 30 && mouseY > height - 60) {
+          // User clicked the South arrow
+          projection.rotate([projection.rotate()[0], projection.rotate()[1] - 10]);
+          render();
+          return;
+        } else if (mouseX < 60 && mouseY > height / 2 - 30 && mouseY < height / 2 + 30) {
+          // User clicked the West arrow
+          projection.rotate([projection.rotate()[0] - 10, projection.rotate()[1]]);
+          render();
+          return;
+        } else if (mouseX > width - 60 && mouseY > height / 2 - 30 && mouseY < height / 2 + 30) {
+          // User clicked the East arrow
+          projection.rotate([projection.rotate()[0] + 10, projection.rotate()[1]]);
+          render();
+          return;
+        }
+
+        const geographicCoordinates = projection.invert([mouseX, mouseY]);
+        const clickedCountry = getCountryAtCoordinates(geographicCoordinates);
+
+        if (clickedCountry) {
+          const centroid = d3.geoCentroid(clickedCountry);
+
+          // Rotate to the clicked country
+          rotateToCountry(centroid);
+        }
+      });
+
+         // Add search functionality for case-insensitive search
+         d3.select("#searchBar").on("keypress", function(event) {
+        if (event.key === "Enter") {
+          const searchText = this.value.trim().toLowerCase();
+          rotateToCountryByName(searchText);
+          // Reset both dropdowns when using the search bar
+          europeDropdown.property("value", "");
+          asiaDropdown.property("value", "");
+        }
+      });
+
+      // Add zoom size display, positioned to the left of the zoom buttons
+      const zoomLabel = d3.select("body").append("div")
+        .attr("id", "zoomLabel")
+        .style("position", "absolute")
+        .style("top", "10px")
+        .style("right", "80px") // Positioned to the left of the zoom buttons
+        .style("background", "#fff")
+        .style("padding", "5px 10px")
+        .style("border", "1px solid #ccc")
+        .style("border-radius", "5px")
+        .text("Zoom: 1.0");
+
+      // Add zoom functionality for mouse wheel
+      d3.select("#zoomIn").on("click", function() {
+        scaleFactor = Math.min(scaleFactor * 1.2, 5); // Max zoom in
+        projection.scale(350 * scaleFactor); // Adjust the scale of the projection
+        d3.select("#zoomLabel").text(`Zoom: ${scaleFactor.toFixed(1)}`); // Update zoom label
+        render(); // Re-render the map after zoom
+      });
+
+      d3.select("#zoomOut").on("click", function() {
+        scaleFactor = Math.max(scaleFactor * 0.8, 0.5); // Max zoom out
+        projection.scale(350 * scaleFactor); // Adjust the scale of the projection
+        d3.select("#zoomLabel").text(`Zoom: ${scaleFactor.toFixed(1)}`); // Update zoom label
+        render(); // Re-render the map after zoom
+      });
+
+      d3.select(canvas).call(d3.zoom()
+        .scaleExtent([0.5, 5]) // Limit zoom out and in
+        .on("zoom", function(event) {
+          scaleFactor = event.transform.k;
+          projection.scale(350 * scaleFactor); // Adjust the scale of the projection
+          d3.select("#zoomLabel").text(`Zoom: ${scaleFactor.toFixed(1)}`); // Update zoom label
+          render(); // Re-render the map after zoom
+        }));
+    });
+
+
+  </script>
+</body>
+</html>
+
