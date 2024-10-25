@@ -578,14 +578,19 @@ button {
 
 #banner1 .carousel-control-prev,
 #banner1 .carousel-control-next {
-     width:80px;
-     height: 80px;
-     background-color: #ed1c24;
-     color: #fff;
-     font-size: 35px;
-     opacity: 1;
-     top: 50%;
-     border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    background-color: #ed1c24;
+    color: #fff;
+    font-size: 35px;
+    opacity: 1;
+    position: absolute;
+    top: 80%;
+    left: 80%;
+    transform: translate(200%, -50%);
+    border-radius: 50%;
+    text-align: center;
+    line-height: 80px;
     
 }
 
