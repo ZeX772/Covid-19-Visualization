@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D3.js Stacked and Grouped Bar Chart</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <style>
+        .bar { transition: all 0.3s; }
+        .axis text { font-size: 12px; }
+        .legend { font-size: 12px; }
+    </style>
+</head>
+<body>
+    <h2>COVID-19 Cases Comparison: Asia vs Europe</h2>
+    <button id="toggleButton">Switch to Grouped View</button>
+    <div id="chart"></div>
+
+    <script>
+        // Sample data
+        const data = [
+            { month: 'Jan', China: 4000, India: 1000, Germany: 1500, France: 1500 },
+            { month: 'Feb', China: 5000, India: 2000, Germany: 2500, France: 2500 },
+            { month: 'Mar', China: 6000, India: 3000, Germany: 3500, France: 4500 },
+            { month: 'Apr', China: 9000, India: 6000, Germany: 5000, France: 7000 },
+            { month: 'May', China: 12000, India: 8000, Germany: 8000, France: 9000 },
+            { month: 'Jun', China: 13000, India: 9000, Germany: 9000, France: 10000 }
+        ];
+
+        // Setup
+        const margin = {top: 40, right: 100, bottom: 40, left: 60};
+        const width = 800 - margin.left - margin.right;
+        const height = 500 - margin.top - margin.bottom;
+
+        const svg = d3.select("#chart")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // Color scale
+        const color = d3.scaleOrdinal()
+            .domain(['China', 'India', 'Germany', 'France'])
+            .range(['#4e79a7', '#f28e2c', '#e15759', '#76b7b2']);
+
+        // X scale
+        const x0 = d3.scaleBand()
+            .domain(data.map(d => d.month))
+            .range([0, width])
+            .padding(0.2);
+
+        // Grouped X scale
+        const x1 = d3.scaleBand();
+
+        // Y scale
+        const y = d3.scaleLinear()
+            .range([height, 0]);
+
+        // Add axes
+        const xAxis = svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", `translate(0,${height})`);
+
+        const yAxis = svg.append("g")
+            .attr("class", "y axis");
+
+        // Create a container for the bars
+        const barsContainer = svg.append("g")
+            .attr("class", "bars-container");
+
+        // Add legend
+        const legend = svg.append("g")
+            .attr("class", "legend")
+            .attr("transform", `translate(${width + 10}, 0)`);
+
+        // Setup legend (only once)
+        const countries = ['China', 'India', 'Germany', 'France'];
+        const legendItems = legend.selectAll(".legend-item")
+            .data(countries)
+            .enter()
+            .append("g")
+            .attr("class", "legend-item")
+            .attr("transform", (d, i) => `translate(0,${i * 20})`);
+
+        legendItems.append("rect")
+            .attr("width", 18)
+            .attr("height", 18)
+            .attr("fill", d => color(d));
+
+        legendItems.append("text")
+            .attr("x", 24)
+            .attr("y", 9)
+            .attr("dy", ".35em")
+            .text(d => d);
+
+        // Function to update the chart
+        function updateChart(grouped = false) {
+            // Clear previous bars
+            barsContainer.selectAll("*").remove();
+
+            if (grouped) {
+                // Grouped view
+                x1.domain(countries)
+                    .range([0, x0.bandwidth()])
+                    .padding(0.05);
+
+                y.domain([0, d3.max(data, d => d3.max(countries, c => d[c]))]).nice();
+
+                const groups = barsContainer.selectAll("g")
+                    .data(data)
+                    .enter()
+                    .append("g")
+                    .attr("transform", d => `translate(${x0(d.month)},0)`);
+
+                groups.selectAll("rect")
+                    .data(d => countries.map(key => ({key, value: d[key]})))
+                    .enter()
+                    .append("rect")
+                    .attr("x", d => x1(d.key))
+                    .attr("y", height)
+                    .attr("width", x1.bandwidth())
+                    .attr("height", 0)
+                    .attr("fill", d => color(d.key))
+                    .transition()
+                    .duration(750)
+                    .attr("y", d => y(d.value))
+                    .attr("height", d => height - y(d.value));
+
+            } else {
+                // Stacked view
+                const stack = d3.stack().keys(countries);
+                const stackedData = stack(data);
+
+                y.domain([0, d3.max(stackedData[stackedData.length - 1], d => d[1])]).nice();
+
+                const layers = barsContainer.selectAll("g")
+                    .data(stackedData)
+                    .enter()
+                    .append("g")
+                    .attr("fill", d => color(d.key));
+
+                layers.selectAll("rect")
+                    .data(d => d)
+                    .enter()
+                    .append("rect")
+                    .attr("x", d => x0(d.data.month))
+                    .attr("y", height)
+                    .attr("width", x0.bandwidth())
+                    .attr("height", 0)
+                    .transition()
+                    .duration(750)
+                    .attr("y", d => y(d[1]))
+                    .attr("height", d => y(d[0]) - y(d[1]));
+            }
+
+            // Update axes
+            xAxis.transition()
+                .duration(750)
+                .call(d3.axisBottom(x0));
+
+            yAxis.transition()
+                .duration(750)
+                .call(d3.axisLeft(y));
+        }
+
+        // Initial render
+        updateChart(false);
+
+        // Toggle button handler
+        let isGrouped = false;
+        d3.select("#toggleButton").on("click", function() {
+            isGrouped = !isGrouped;
+            this.textContent = isGrouped ? "Switch to Stacked View" : "Switch to Grouped View";
+            updateChart(isGrouped);
+        });
+    </script>
+</body>
+</html>
