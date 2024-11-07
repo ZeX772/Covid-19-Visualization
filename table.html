@@ -6,9 +6,55 @@
     <title>D3.js Stacked and Grouped Bar Chart</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
     <style>
-        .bar { transition: all 0.3s; }
-        .axis text { font-size: 12px; }
-        .legend { font-size: 12px; }
+        .chart-container {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .bar {
+            transition: fill 0.3s;
+        }
+        .bar:hover {
+            opacity: 0.8;
+        }
+        .axis-label {
+            font-size: 12px;
+            fill: #666;
+        }
+        .chart-title {
+            font-size: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .tooltip {
+            position: absolute;
+            padding: 10px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            pointer-events: none;
+            font-size: 14px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .legend {
+            font-size: 12px;
+        }
+        .controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 8px 16px;
+            margin: 0 5px;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #f8f8f8;
+        }
+        button:hover {
+            background: #eee;
+        }
     </style>
 </head>
 <body>
@@ -17,163 +63,292 @@
     <div id="chart"></div>
 
     <script>
-        // Sample data
-        const data = [
-            { month: 'Jan', China: 4000, India: 1000, Germany: 1500, France: 1500 },
-            { month: 'Feb', China: 5000, India: 2000, Germany: 2500, France: 2500 },
-            { month: 'Mar', China: 6000, India: 3000, Germany: 3500, France: 4500 },
-            { month: 'Apr', China: 9000, India: 6000, Germany: 5000, France: 7000 },
-            { month: 'May', China: 12000, India: 8000, Germany: 8000, France: 9000 },
-            { month: 'Jun', China: 13000, India: 9000, Germany: 9000, France: 10000 }
-        ];
 
-        // Setup
-        const margin = {top: 40, right: 100, bottom: 40, left: 60};
-        const width = 800 - margin.left - margin.right;
-        const height = 500 - margin.top - margin.bottom;
+        
+        d3.csv("Dataset1.csv").then(function(rawData) {
 
-        const svg = d3.select("#chart")
-            .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
+            // Log the data to ensure it is loaded correctly
+            console.log("Loaded data:", rawData);
 
-        // Color scale
-        const color = d3.scaleOrdinal()
-            .domain(['China', 'India', 'Germany', 'France'])
-            .range(['#4e79a7', '#f28e2c', '#e15759', '#76b7b2']);
+            const data = rawData.map(d => ({
+                Region: d.Region,
+                Country: d.Country,
+                Cases: parseInt(d['Total Cases'].replace(/,/g, ''))
+            }));
 
-        // X scale
-        const x0 = d3.scaleBand()
-            .domain(data.map(d => d.month))
-            .range([0, width])
-            .padding(0.2);
+            console.log(data);
 
-        // Grouped X scale
-        const x1 = d3.scaleBand();
+        // Setup dimensions
+            const margin = { top: 40, right: 200, bottom: 60, left: 80 };
+            const width = 900 - margin.left - margin.right;
+            const height = 500 - margin.top - margin.bottom;
 
-        // Y scale
-        const y = d3.scaleLinear()
-            .range([height, 0]);
+            // Create SVG
+            const svg = d3.select("#chart")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
 
-        // Add axes
-        const xAxis = svg.append("g")
-            .attr("class", "x axis")
-            .attr("transform", `translate(0,${height})`);
 
-        const yAxis = svg.append("g")
-            .attr("class", "y axis");
+            // Scales
+            const regions = [...new Set(data.map(d => d.Region))];
+            const countries = [...new Set(data.map(d => d.Country))];
 
-        // Create a container for the bars
-        const barsContainer = svg.append("g")
-            .attr("class", "bars-container");
+            // Color scales for different regions
+            const asiaColorScale = d3.scaleOrdinal()
+            .domain(data.filter(d => d.Region === 'Asia').map(d => d.Country))
+            .range(d3.quantize(t => d3.interpolateBlues(0.3 + 0.7 * t), 48));
 
-        // Add legend
-        const legend = svg.append("g")
-            .attr("class", "legend")
-            .attr("transform", `translate(${width + 10}, 0)`);
+            const europeColorScale = d3.scaleOrdinal()
+            .domain(data.filter(d => d.Region === 'Europe').map(d => d.Country))
+            .range(d3.quantize(t => d3.interpolateReds(0.3 + 0.7 * t), 50));
 
-        // Setup legend (only once)
-        const countries = ['China', 'India', 'Germany', 'France'];
-        const legendItems = legend.selectAll(".legend-item")
-            .data(countries)
-            .enter()
-            .append("g")
-            .attr("class", "legend-item")
-            .attr("transform", (d, i) => `translate(0,${i * 20})`);
 
-        legendItems.append("rect")
-            .attr("width", 18)
-            .attr("height", 18)
-            .attr("fill", d => color(d));
+            const x0 = d3.scaleBand()
+                .domain(regions)
+                .range([0, width])
+                .padding(0.3);
 
-        legendItems.append("text")
-            .attr("x", 24)
-            .attr("y", 9)
-            .attr("dy", ".35em")
-            .text(d => d);
+            const x1 = d3.scaleBand()
+                .domain(countries)
+                .range([0, x0.bandwidth()])
+                .padding(0.05);
 
-        // Function to update the chart
-        function updateChart(grouped = false) {
-            // Clear previous bars
-            barsContainer.selectAll("*").remove();
+            const y = d3.scaleLinear()
+                .range([height, 0]);
 
-            if (grouped) {
-                // Grouped view
-                x1.domain(countries)
-                    .range([0, x0.bandwidth()])
-                    .padding(0.05);
+            // Create axes groups
+            const xAxis = svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", `translate(0,${height})`);
 
-                y.domain([0, d3.max(data, d => d3.max(countries, c => d[c]))]).nice();
+            const yAxis = svg.append("g")
+                .attr("class", "y axis");
 
-                const groups = barsContainer.selectAll("g")
-                    .data(data)
-                    .enter()
-                    .append("g")
-                    .attr("transform", d => `translate(${x0(d.month)},0)`);
+            // Create bars container
+            const barsContainer = svg.append("g")
+                .attr("class", "bars-container");
 
-                groups.selectAll("rect")
-                    .data(d => countries.map(key => ({key, value: d[key]})))
-                    .enter()
-                    .append("rect")
-                    .attr("x", d => x1(d.key))
-                    .attr("y", height)
-                    .attr("width", x1.bandwidth())
-                    .attr("height", 0)
-                    .attr("fill", d => color(d.key))
-                    .transition()
+            // Create tooltip
+            const tooltip = d3.select("body")
+                .append("div")
+                .attr("class", "tooltip")
+                .style("opacity", 0);
+
+            // Update function
+            function updateChart(grouped = false) {
+                // Clear previous content
+                barsContainer.selectAll("*").remove();
+
+                if (grouped) {
+                    // Grouped view
+                    y.domain([0, d3.max(data, d => d.Cases)]).nice();
+
+                    regions.forEach(region => {
+                        const regionData = data.filter(d => d.Region === region);
+                        const colorScale = region === 'Asia' ? asiaColorScale : europeColorScale;
+                        
+                        // Calculate the total width of bars for centering
+                        const totalBarsWidth = regionData.length * x1.bandwidth();
+                        const startOffset = (x0.bandwidth() - totalBarsWidth) / 2;
+                        
+                        const regionGroup = barsContainer.append("g")
+                            .attr("transform", `translate(${x0(region)},0)`);
+
+                        regionGroup.selectAll("rect")
+                            .data(regionData)
+                            .enter()
+                            .append("rect")
+                            .attr("x", (d, i) => startOffset + i * x1.bandwidth())
+                            .attr("width", x1.bandwidth())
+                            .attr("y", height)
+                            .attr("height", 0)
+                            .attr("fill", d => colorScale(d.Country))
+                            .transition()
+                            .duration(750)
+                            .attr("y", d => y(d.Cases))
+                            .attr("height", d => height - y(d.Cases));
+
+                        // Add hover effects
+                        regionGroup.selectAll("rect")
+                            .on("mouseover", function(event, d) {
+                                tooltip.transition()
+                                    .duration(200)
+                                    .style("opacity", .9);
+                                tooltip.html(`Region: ${d.Region}<br>Country: ${d.Country}<br>Cases: ${d.Cases.toLocaleString()}`)
+                                    .style("left", (event.pageX + 10) + "px")
+                                    .style("top", (event.pageY - 28) + "px");
+                            })
+                            .on("mouseout", function() {
+                                tooltip.transition()
+                                    .duration(500)
+                                    .style("opacity", 0);
+                            });
+                    });
+                } else {
+                    // Stacked view
+                    const stackedData = d3.stack()
+                        .keys(countries)
+                        .value((d, key) => {
+                            const match = data.find(item => item.Region === d && item.Country === key);
+                            return match ? match.Cases : 0;
+                        })(regions);
+
+                    y.domain([0, d3.max(stackedData[stackedData.length - 1], d => d[1])]).nice();
+
+                    const layers = barsContainer.selectAll("g")
+                        .data(stackedData)
+                        .enter()
+                        .append("g")
+                        .attr("fill", d => {
+                            const matchingData = data.find(item => item.Country === d.key);
+                            return matchingData.Region === 'Asia' ? 
+                                asiaColorScale(d.key) : europeColorScale(d.key);
+                        });
+
+                    layers.selectAll("rect")
+                        .data(d => d)
+                        .enter()
+                        .append("rect")
+                        .attr("x", d => x0(d.data))
+                        .attr("width", x0.bandwidth())
+                        .attr("y", height)
+                        .attr("height", 0)
+                        .transition()
+                        .duration(750)
+                        .attr("y", d => y(d[1]))
+                        .attr("height", d => y(d[0]) - y(d[1]));
+
+                    // Add hover effects
+                    layers.selectAll("rect")
+                        .on("mouseover", function(event, d) {
+                            const key = d3.select(this.parentNode).datum().key;
+                            const value = data.find(item => item.Region === d.data && item.Country === key);
+                            tooltip.transition()
+                                .duration(200)
+                                .style("opacity", .9);
+                            tooltip.html(`Region: ${value.Region}<br>Country: ${key}<br>Cases: ${value.Cases.toLocaleString()}`)
+                                .style("left", (event.pageX + 10) + "px")
+                                .style("top", (event.pageY - 28) + "px");
+                        })
+                        .on("mouseout", function() {
+                            tooltip.transition()
+                                .duration(500)
+                                .style("opacity", 0);
+                        });
+                }
+
+                // Update axes
+                xAxis.transition()
                     .duration(750)
-                    .attr("y", d => y(d.value))
-                    .attr("height", d => height - y(d.value));
+                    .call(d3.axisBottom(x0));
 
-            } else {
-                // Stacked view
-                const stack = d3.stack().keys(countries);
-                const stackedData = stack(data);
-
-                y.domain([0, d3.max(stackedData[stackedData.length - 1], d => d[1])]).nice();
-
-                const layers = barsContainer.selectAll("g")
-                    .data(stackedData)
-                    .enter()
-                    .append("g")
-                    .attr("fill", d => color(d.key));
-
-                layers.selectAll("rect")
-                    .data(d => d)
-                    .enter()
-                    .append("rect")
-                    .attr("x", d => x0(d.data.month))
-                    .attr("y", height)
-                    .attr("width", x0.bandwidth())
-                    .attr("height", 0)
-                    .transition()
+                yAxis.transition()
                     .duration(750)
-                    .attr("y", d => y(d[1]))
-                    .attr("height", d => y(d[0]) - y(d[1]));
+                    .call(d3.axisLeft(y)
+                        .tickFormat(d => (d / 1000000).toFixed(1) + "M"));
             }
 
-            // Update axes
-            xAxis.transition()
-                .duration(750)
-                .call(d3.axisBottom(x0));
+            // Add legend
+            const legend = svg.append("g")
+                .attr("class", "legend")
+                .attr("transform", `translate(${width + 10}, 0)`);
 
-            yAxis.transition()
-                .duration(750)
-                .call(d3.axisLeft(y));
-        }
+            // Create separate legends for Asia and Europe
+            const asiaLegend = legend.append("g")
+                .attr("class", "asia-legend");
+            
+            const europeLegend = legend.append("g")
+                .attr("class", "europe-legend")
+                .attr("transform", "translate(0, 100)");
 
-        // Initial render
-        updateChart(false);
+            // Asia legend title
+            asiaLegend.append("text")
+                .attr("x", 0)
+                .attr("y", -10)
+                .attr("font-weight", "bold")
+                .text("Asia");
 
-        // Toggle button handler
-        let isGrouped = false;
-        d3.select("#toggleButton").on("click", function() {
-            isGrouped = !isGrouped;
-            this.textContent = isGrouped ? "Switch to Stacked View" : "Switch to Grouped View";
-            updateChart(isGrouped);
+            // Europe legend title
+            europeLegend.append("text")
+                .attr("x", 110)
+                .attr("y", -10)
+                .attr("font-weight", "bold")
+                .text("Europe");
+
+            // Add Asia items
+            const asiaData = data.filter(d => d.Region === 'Asia');
+            asiaLegend.selectAll("text").remove();
+            asiaLegend.selectAll("rect")
+            .data(asiaData)
+            .enter()
+            .append("rect")
+            .attr("x", 0)
+            .attr("y", (d, i) => i * 15) // reduced spacing
+            .attr("width", 12)
+            .attr("height", 12)
+            .attr("fill", d => asiaColorScale(d.Country));
+
+            asiaLegend.selectAll("text")
+            .data(asiaData)
+            .enter()
+            .append("text")
+            .attr("x", 20)
+            .attr("y", (d, i) => i * 15 + 10) // adjusted for new spacing
+            .text(d => d.Country);
+
+            // Add Europe items
+            const europeData = data.filter(d => d.Region === 'Europe');
+            europeLegend.selectAll("text").remove();
+            europeLegend.selectAll("rect")
+                .data(europeData)
+                .enter()
+                .append("rect")
+                .attr("x", 100)
+                .attr("y", (d, i) => i * 15) // adjusted spacing
+                .attr("width", 12)
+                .attr("height", 12)
+                .attr("fill", d => europeColorScale(d.Country));
+
+            europeLegend.selectAll("text")
+                .data(europeData)
+                .enter()
+                .append("text")
+                .attr("x", 120)
+                .attr("y", (d, i) => i * 15 + 10) // matching spacing
+                .text(d => d.Country);
+
+            // Add axis labels
+            svg.append("text")
+                .attr("class", "axis-label")
+                .attr("text-anchor", "middle")
+                .attr("x", width / 2)
+                .attr("y", height + margin.bottom - 10)
+                .text("Region");
+
+            svg.append("text")
+                .attr("class", "axis-label")
+                .attr("text-anchor", "middle")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -margin.left + 20)
+                .attr("x", -height / 2)
+                .text("Total Cases");
+
+            // Initial render
+            updateChart(false);
+
+            // Toggle button handler
+            let isGrouped = false;
+            d3.select("#toggleButton").on("click", function() {
+                isGrouped = !isGrouped;
+                this.textContent = isGrouped ? "Switch to Stacked View" : "Switch to Grouped View";
+                updateChart(isGrouped);
+
+            });
         });
+
     </script>
 </body>
 </html>

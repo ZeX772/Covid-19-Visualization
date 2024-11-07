@@ -132,11 +132,11 @@
         
         <div class="legend">
             <div class="legend-item">
-                <div class="legend-color" style="background: #3b82f6"></div>
+                <div class="legend-color" style="background: #ef4444"></div>
                 Asia
             </div>
             <div class="legend-item">
-                <div class="legend-color" style="background: #ef4444"></div>
+                <div class="legend-color" style="background: #3b82f6"></div>
                 Europe
             </div>
         </div>
@@ -147,30 +147,34 @@
     </div>
 
     <script>
+
+d3.csv("Dataset4.csv").then(function(rawData) {
         // Data
-        const years = [1790, 1800, 1810, 1820, 1830, 1840, 1850];
-        const data = {
-            "Asia": {
-                "New England": {
-                    "Japan": [378787, 422845, 472040, 523287, 610408, 737699, 994514],
-                    "India": [237946, 251002, 262042, 275248, 297675, 309978, 370792]
-                },
-                "Mid-Atlantic": {
-                    "China": [340120, 589051, 959049, 1372812, 1918608, 2428921, 3097394],
-                    "Indonesia": [434373, 602365, 810091, 1047507, 1348233, 1724033, 2311786]
-                }
-            },
-            "Europe": {
-                "South Atlantic": {
-                    "Germany": [691737, 807557, 877683, 938261, 1044054, 1025227, 1119348],
-                    "USA": [82548, 162686, 252433, 340989, 516823, 691392, 906185]
-                }
-            }
-        };
+        const years = ['1/6/2020', '1/12/2020', '1/1/2021', '1/6/2021', '1/12/2021', '1/1/2022', '1/6/2022', '1/12/2022', '1/6/2023', '1/12/2023', '1/1/2024', '1/6/2024'];
+        const yearIndexMap = years.reduce((acc, year, index) => ({ ...acc, [year]: index }), {}); // Map dates to indices for easy access
+
+        const data = {};
+
+        // Parse raw data into structured format
+        rawData.forEach(entry => {
+            const region = entry.region;
+            const country = entry.country;
+            const dateIndex = yearIndexMap[entry.date];
+            const totalVaccinated = parseInt(entry.total_vacinated, 10);
+
+            // Initialize region and country if not already done
+            if (!data[region]) data[region] = {};
+            if (!data[region][country]) data[region][country] = new Array(years.length).fill(0);
+
+            // Insert the total vaccinated count at the correct date index
+            data[region][country][dateIndex] = totalVaccinated;
+        });
+
+        console.log(data);
 
         // Setup
-        const margin = {top: 20, right: 200, bottom: 30, left: 120};
-        const width = 1160 - margin.left - margin.right;
+        const margin = { top: 20, right: 200, bottom: 30, left: 120 };
+        let width = parseInt(d3.select('.chart-container').style('width')) - margin.left - margin.right;
         const height = 600 - margin.top - margin.bottom;
 
         const svg = d3.select('.chart-container')
@@ -186,10 +190,8 @@
 
         // Colors
         const colors = {
-            "Asia": "#3b82f6",
-            "Europe": "#ef4444",
-            "Midwest": "#22c55e",
-            "West": "#eab308"
+            "Asia": "#ef4444",
+            "Europe": "#3b82f6",
         };
 
         // Animation state
@@ -200,15 +202,12 @@
         // Transform data for visualization
         function transformData(yearIndex) {
             const result = [];
-            Object.entries(data).forEach(([region, divisions]) => {
-                Object.entries(divisions).forEach(([division, states]) => {
-                    Object.entries(states).forEach(([state, populations]) => {
-                        result.push({
-                            state,
-                            region,
-                            division,
-                            population: populations[yearIndex]
-                        });
+            Object.entries(data).forEach(([region, countries]) => {
+                Object.entries(countries).forEach(([country, vaccinations]) => {
+                    result.push({
+                        country,
+                        region,
+                        population: vaccinations[yearIndex] || 0
                     });
                 });
             });
@@ -221,12 +220,10 @@
             
             // Update scales
             x.domain([0, d3.max(currentData, d => d.population)]);
-            y.domain(currentData.map(d => d.state));
+            y.domain(currentData.map(d => d.country));
 
             // Update axis
-            const xAxis = d3.axisBottom(x)
-                .ticks(5)
-                .tickFormat(d => d3.format('.2s')(d));
+            const xAxis = d3.axisBottom(x).ticks(5).tickFormat(d3.format('.2s'));
             const yAxis = d3.axisLeft(y);
 
             svg.selectAll('.x-axis').remove();
@@ -243,25 +240,25 @@
 
             // Update bars
             const bars = svg.selectAll('.bar')
-                .data(currentData, d => d.state);
+                .data(currentData, d => d.country);
 
             bars.enter()
                 .append('rect')
                 .attr('class', 'bar')
+                .attr('fill', d => colors[d.region])
                 .merge(bars)
                 .transition()
                 .duration(750)
                 .attr('x', 0)
-                .attr('y', d => y(d.state))
+                .attr('y', d => y(d.country))
                 .attr('width', d => x(d.population))
-                .attr('height', y.bandwidth())
-                .attr('fill', d => colors[d.region]);
+                .attr('height', y.bandwidth());
 
             bars.exit().remove();
 
             // Update labels
             const labels = svg.selectAll('.bar-label')
-                .data(currentData, d => d.state);
+                .data(currentData, d => d.country);
 
             labels.enter()
                 .append('text')
@@ -270,16 +267,23 @@
                 .transition()
                 .duration(750)
                 .attr('x', d => x(d.population) + 5)
-                .attr('y', d => y(d.state) + y.bandwidth() / 2)
+                .attr('y', d => y(d.country) + y.bandwidth() / 2)
                 .attr('dy', '0.35em')
                 .text(d => d3.format(',')(d.population));
 
             labels.exit().remove();
 
-            // Update year and total population displays
-            document.getElementById('current-year').textContent = years[yearIndex];
+            // Update year and total population displays with transition
+            d3.select('#current-year')
+                .transition()
+                .duration(750)
+                .text(years[yearIndex]);
+
             const totalPop = currentData.reduce((sum, d) => sum + d.population, 0);
-            document.getElementById('total-population').textContent = d3.format(',')(totalPop);
+            d3.select('#total-population')
+                .transition()
+                .duration(750)
+                .text(d3.format(',')(totalPop));
         }
 
         // Controls
@@ -319,7 +323,7 @@
         // Initialize
         update(currentYearIndex);
 
-        // Add hover effects
+        // Tooltip
         svg.selectAll('.bar')
             .on('mouseover', function(event, d) {
                 const tooltip = document.getElementById('tooltip');
@@ -327,14 +331,32 @@
                 tooltip.style.left = (event.pageX + 10) + 'px';
                 tooltip.style.top = (event.pageY - 10) + 'px';
                 tooltip.innerHTML = `
-                    <strong>${d.state}</strong><br>
+                    <strong>${d.country}</strong><br>
                     Region: ${d.region}<br>
                     Population: ${d3.format(',')(d.population)}
                 `;
+                d3.select(this).attr('fill', d3.color(colors[d.region]).darker(0.5)); // Highlight bar
             })
-            .on('mouseout', function() {
+            .on('mousemove', function(event) {
+                const tooltip = document.getElementById('tooltip');
+                tooltip.style.left = (event.pageX + 10) + 'px';
+                tooltip.style.top = (event.pageY - 10) + 'px';
+            })
+            .on('mouseout', function(d) {
                 document.getElementById('tooltip').style.display = 'none';
+                // d3.select(this).attr('fill', colors[d.region]); // Reset color
             });
+
+        // Responsive resizing
+        window.addEventListener('resize', () => {
+            width = parseInt(d3.select('.chart-container').style('width')) - margin.left - margin.right;
+            svg.attr('width', width + margin.left + margin.right);
+            x.range([0, width]);
+            update(currentYearIndex);
+        });
+    });
+
+
     </script>
 </body>
 </html>

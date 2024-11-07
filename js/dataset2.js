@@ -1,139 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>D3.js Tabs: Enhanced Bar & Line Charts</title>
-    <script src="https://d3js.org/d3.v6.min.js"></script>
-    <style>
-        body {
-            font-family: 'Roboto', Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f5f5f5;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 20px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .tabs {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 30px;
-        }
-
-        .tab {
-            padding: 12px 24px;
-            font-size: 16px;
-            font-weight: 500;
-            color: #666;
-            background-color: #f0f0f0;
-            border-radius: 4px 4px 0 0;
-            cursor: pointer;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        .tab:hover {
-            background-color: #e0e0e0;
-        }
-
-        .tab.active {
-            background-color: #2196F3;
-            color: white;
-        }
-
-        .chart-container {
-            position: relative;
-            height: 500px; /* Increased chart height */
-        }
-
-        .chart {
-            display: none;
-        }
-
-        .chart.active {
-            display: block;
-        }
-
-        .tooltip {
-            position: absolute;
-            padding: 8px 12px;
-            font-size: 14px;
-            background-color: rgba(0, 0, 0, 0.8);
-            color: white;
-            border-radius: 4px;
-            pointer-events: none;
-        }
-
-        .legend {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-            gap: 20px;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            color: #666;
-        }
-
-        .legend-color {
-            width: 16px;
-            height: 16px;
-            border-radius: 3px;
-        }
-
-        /* Increased x-axis label spacing */
-        .x-axis-label {
-            text-anchor: middle;
-            font-size: 14px;
-            fill: #666;
-            letter-spacing: 2px;
-        }
-
-        /* Added spacing between y-axis labels */
-        .y-axis-label {
-            font-size: 14px;
-            fill: #666;
-            padding-right: 8px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div id="tabs">
-            <div class="tab active" data-target="#barChart">Total Cases (Bar Chart)</div>
-            <div class="tab" data-target="#lineChart">Case Trend (Line Chart)</div>
-        </div>
-
-        <div class="chart-container">
-            <div id="barChart" class="chart active"></div>
-            <div id="lineChart" class="chart"></div>
-        </div>
-
-        <div class="legend">
-            <div class="legend-item">
-                <div class="legend-color" style="background-color: steelblue"></div>
-                <span>Asia</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background-color: orange"></div>
-                <span>Europe</span>
-            </div>
-        </div>
-    </div>
-
-    <script>
-
 d3.csv("Dataset2.csv").then(function(rawData) {
     // Log the data to ensure it is loaded correctly
     console.log("Loaded data:", rawData);
@@ -163,7 +27,7 @@ d3.csv("Dataset2.csv").then(function(rawData) {
     console.log("Line Chart Data:", lineChartData);
 
     const margin = { top: 40, right: 40, bottom: 80, left: 100 };
-    const width = 900 - margin.left - margin.right;
+    const width = 600 - margin.left - margin.right;
     const height = 500 - margin.top - margin.bottom;
 
     // Create tooltip
@@ -326,7 +190,3 @@ d3.csv("Dataset2.csv").then(function(rawData) {
         d3.select(target).classed("active", true);
     });
 });
-
-    </script>
-</body>
-</html>
