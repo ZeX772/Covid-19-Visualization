@@ -396,7 +396,7 @@
         scaleFactor = Math.max(scaleFactor * 0.8, 0.5); // Max zoom out
         projection.scale(350 * scaleFactor); // Adjust the scale of the projection
         d3.select("#zoomLabel").text(`Zoom: ${scaleFactor.toFixed(1)}`); // Update zoom label
-        render(); // Re-render the map after zoom
+        render(); // Re-render the map after zooma
       });
 
       d3.select(canvas).call(d3.zoom()
