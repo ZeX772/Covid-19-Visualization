@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <!-- basic -->
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <!-- mobile metas -->
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+      <!-- site metas -->
+      <title>Covid Data Visualization</title>
+      <meta name="keywords" content="">
+      <meta name="description" content="">
+      <meta name="author" content="">
+      <!-- bootstrap css -->
+      <link rel="stylesheet" href="css/bootstrap.min.css">
+      <!-- style css -->
+      <link rel="stylesheet" href="css/style.css">
+      <!-- Responsive-->
+      <link rel="stylesheet" href="css/responsive.css">
+      <!-- fevicon -->
+      <link rel="icon" href="images/fevicon.png" type="image/gif" />
+      <!-- Scrollbar Custom CSS -->
+      <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
+      <link rel="stylesheet" href="css/owl.carousel.min.css"> 
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css" media="screen">
+      <link rel="stylesheet" href="https://rawgit.com/LeshikJanz/libraries/master/Bootstrap/baguetteBox.min.css">
+      <script src="https://d3js.org/d3.v6.min.js"></script>
+  </head>
+   <style>
+
+
+
+      .tabs {
+         display: flex;
+         justify-content: center;
+         margin-bottom: 30px;
+      }
+
+      .tab {
+         padding: 12px 24px;
+         font-size: 16px;
+         font-weight: 500;
+         color: #666;
+         background-color: #f0f0f0;
+         border-radius: 4px 4px 0 0;
+         cursor: pointer;
+         transition: background-color 0.3s, color 0.3s;
+      }
+
+      .tab:hover {
+         background-color: #e0e0e0;
+      }
+
+      .tab.active {
+         background-color: #2196F3;
+         color: white;
+      }
+
+      .chart-container {
+         position: relative;
+         height: 500px; /* Increased chart height */
+      }
+
+      .chart {
+         display: none;
+      }
+
+      .chart.active {
+         display: block;
+      }
+
+      .tooltip {
+         position: absolute;
+         padding: 8px 12px;
+         font-size: 14px;
+         background-color: rgba(0, 0, 0, 0.8);
+         color: white;
+         border-radius: 4px;
+         pointer-events: none;
+      }
+
+      .legend {
+         display: flex;
+         justify-content: center;
+         margin-top: 20px;
+         gap: 20px;
+      }
+
+      .legend-item {
+         display: flex;
+         align-items: center;
+         gap: 8px;
+         font-size: 14px;
+         color: #666;
+      }
+
+      .legend-color {
+         width: 16px;
+         height: 16px;
+         border-radius: 3px;
+      }
+
+      /* Increased x-axis label spacing */
+      .x-axis-label {
+         text-anchor: middle;
+         font-size: 14px;
+         fill: #666;
+         letter-spacing: 2px;
+      }
+
+      /* Added spacing between y-axis labels */
+      .y-axis-label {
+         font-size: 14px;
+         fill: #666;
+         padding-right: 8px;
+      }
+   </style>
+   <!-- body -->
+   <body class="main-layout inner_page">
+      <!-- loader  -->
+      <div class="loader_bg">
+         <div class="loader"><img src="images/loading.gif" alt="#"/></div>
+      </div>
+      <!-- end loader -->
+      <!-- top -->
+      <!-- header -->
+         <header class="header-area">
+         <!-- <div class="left">
+             <a href="Javascript:void(0)"><i class="fa fa-search" aria-hidden="true"></i></a>
+         </div>
+         <div class="right">
+             <a href="Javascript:void(0)"><i class="fa fa-user" aria-hidden="true"></i></a>
+         </div> -->
+         <div class="container">
+             <div class="row d_flex">
+                 <div class="col-sm-3 logo_sm">
+                     <div class="logo">
+                     <a href="index.html"></a>
+                     </div>
+                 </div>
+                 <div class="col-lg-10 offset-lg-1 col-md-12 col-sm-9">
+                    <div class="navbar-area">
+                    <nav class="site-navbar">
+                        <ul>
+                            <li><a href="index.html">Home</a></li>
+                            <li><a class="active" href="dataset2.html">Mortality</a></li>
+                            <li><a href="dataset3.html">Multisector</a></li>
+                            <li><a href="dataset4.html">Vaccination</a></li>
+                            <!-- <li><a href="contact.html">Contact </a></li> -->
+                        </ul>
+                        <button class="nav-toggler">
+                        <span></span>
+                        </button>
+                    </nav>
+                    </div>
+                </div>
+             </div>
+         </div>
+         </header>
+      <!-- end header -->
+      <!-- about -->
+      <div class="about">
+         <div class="container_width">
+            <div class="row d_flex">
+                   <div class="col-md-4">
+                  <div class="titlepage text_align_left">
+                     <h2>COVID-19 Mortality Trends: Asia vs. Europe</h2>
+                     <p>The COVID-19 pandemic impacted Asia and Europe differently, with each region adopting unique responses to control the virus. Asia, drawing on past outbreak experiences, generally saw lower death tolls due to early lockdowns and rigorous testing. In contrast, Europe faced intense waves early on, straining healthcare systems and leading to higher mortality in some countries. Comparing the death totals in these regions reveals how varied policies and health infrastructure shaped their experiences with the pandemic.</p>
+                  </div>
+               </div>
+               <div class="col-md-8">
+                  <div class="about_img text_align_center">
+                     <div class="container">
+                        <div id="tabs">
+                            <div class="tab active" data-target="#barChart">Total Cases (Bar Chart)</div>
+                            <div class="tab" data-target="#lineChart">Case Trend (Line Chart)</div>
+                        </div>
+                
+                        <div class="chart-container">
+                            <div id="barChart" class="chart active"></div>
+                            <div id="lineChart" class="chart"></div>
+                        </div>
+                
+                        <div class="legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: steelblue"></div>
+                                <span>Asia</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: orange"></div>
+                                <span>Europe</span>
+                            </div>
+                        </div>
+                    </div>
+                  </div>
+               </div>
+              
+            </div>
+         </div>
+      </div>
+      <!-- end about -->
+      <!--  footer -->
+      <footer>
+         <div class="footer">
+             <div class="container">
+                 <div class="row">
+                     <div class="col-lg-2 col-md-6 col-sm-6">
+                         <div class="hedingh3 text_align_left">
+                             <h3>Resources</h3>
+                             <ul class="menu_footer">
+                                 <li>OECD<li>
+                                 <li>WHO<li>
+                             </ul>
+                         </div>
+                     </div>
+                     <div class="col-lg-3 col-md-6 col-sm-6">
+                         <div class="hedingh3 text_align_left">
+                             <h3>About</h3>
+                             <p>This visualization compares COVID-19 outcomes in Asia and Europe, focusing on socioeconomic, demographic, and healthcare factors. It highlights how differences in population density, age, GDP, and healthcare resources influenced the pandemic's impact across the two regions.</p>
+                         </div>
+                     </div>
+                         
+                     <div class="col-lg-3 col-md-6 col-sm-6">
+                             <div class="hedingh3  text_align_left">
+                                 <h3>Contact  Us</h3>
+                             <ul class="top_infomation">
+                                 <li><i class="fa fa-map-marker" aria-hidden="true"></i>
+                                     INTI SUBANG
+                                 </li>
+                                 <li><i class="fa fa-envelope" aria-hidden="true"></i>
+                                 <a href="Javascript:void(0)">Email : demo@gmail.com</a>
+                                 </li>
+                             </ul>
+                                 
+                             
+                         </div>
+                     </div>
+
+                     <div class="col-lg-4 col-md-6 col-sm-6">
+                         <div class="hedingh3 text_align_left">
+                             <h3>countrys</h3>
+                             <div class="map">
+                                 <img src="images/map.png" alt="#"/>
+                             </div>
+                         </div>
+                     </div>
+                         
+                 </div>
+             </div>
+             <div class="copyright">
+             <div class="container">
+                 <div class="row">
+                     <div class="col-md-8 offset-md-2">
+                         <p>© 2024 All Rights Reserved. Design by Group 2</p>
+                     </div>
+                 </div>
+             </div>
+             </div>
+         </div>
+      </footer>
+      <!-- end footer -->
+      <!-- Javascript files-->
+      <script src="js/jquery.min.js"></script>
+      <script src="js/bootstrap.bundle.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.8.1/baguetteBox.min.js"></script>
+      <script src="js/owl.carousel.min.js"></script>
+      <script src="js/custom.js"></script>
+      <script src="js/dataset2.js"></script>
+   </body>
+</html>

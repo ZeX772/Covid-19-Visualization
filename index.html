@@ -27,6 +27,57 @@
         <link rel="stylesheet" href="https://rawgit.com/LeshikJanz/libraries/master/Bootstrap/baguetteBox.min.css">
         <script src="https://d3js.org/d3.v6.min.js"></script>
     </head>
+    <style>
+        .chart-container {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .bar {
+            transition: fill 0.3s;
+        }
+        .bar:hover {
+            opacity: 0.8;
+        }
+        .axis-label {
+            font-size: 12px;
+            fill: #666;
+        }
+        .chart-title {
+            font-size: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .tooltip {
+            position: absolute;
+            padding: 10px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            pointer-events: none;
+            font-size: 14px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .legend {
+            font-size: 12px;
+        }
+        .controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 8px 16px;
+            margin: 0 5px;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #f8f8f8;
+        }
+        button:hover {
+            background: #eee;
+        }
+    </style>
     <!-- body -->
     <body class="main-layout">
         <!-- loader  -->
@@ -55,10 +106,10 @@
                             <nav class="site-navbar">
                                 <ul>
                                     <li><a class="active" href="index.html">Home</a></li>
-                                    <li><a href="about.html">About</a></li>
-                                    <li><a href="action.html">Global Trends</a></li>
-                                    <li><a href="index.html" class="logo_midle">Country-Specific Data</a></li>
-                                    <li><a href="contact.html">Contact </a></li>
+                                    <li><a href="dataset2.html">Mortality</a></li>
+                                    <li><a href="dataset3.html">Multisector</a></li>
+                                    <li><a href="dataset4.html">Vaccination</a></li>
+                                    <!-- <li><a href="contact.html">Contact </a></li> -->
                                 </ul>
                                 <button class="nav-toggler">
                                 <span></span>
@@ -88,7 +139,7 @@
                             <div class="row">
                                 <div class="col-md-8">
                                     <div class="photog">
-                                        <h1>COVID-19: Comparing Asia and Europe</h1>
+                                        <h1>COVID-19 disrupted lives across Asia and Europe.</h1>
                                     </div>
                                 </div>
                             </div>
@@ -102,7 +153,7 @@
                             <div class="row">
                                 <div class="col-md-8">
                                     <div class="photog">
-                                        <h1>Socioeconomic and Health Factors in COVID-19</h1>
+                                        <h1>COVID-19 affected Asia and Europe in distinct ways.</h1>
                                     </div>
                                 </div>
                             </div>
@@ -116,7 +167,7 @@
                             <div class="row">
                                 <div class="col-md-8">
                                     <div class="photog">
-                                        <h1>COVID-19 Impact by Region: Asia vs Europe</h1>
+                                        <h1>Both regions responded with diverse health measures.</h1>
                                     </div>
                                 </div>
                             </div>
@@ -178,8 +229,8 @@
                 <div class="row">
                 <div class="col-md-12">
                     <div class="titlepage text_align_center">
-                        <h2>Socioeconomic Factors and COVID-19 Health Outcomes: Asia vs. Europe</h2>
-                        <p>Focus: Investigating how GDP per capita, extreme poverty, and human development index influence COVID-19 health outcomes in Asia and Europe. </p>
+                        <h2>COVID-19 Impact: Comparative Analysis of Total Cases in Asia and Europe</h2>
+                        <p>The COVID-19 pandemic swept through continents with profound effects, yet the spread and impact varied significantly between Asia and Europe. This comparative analysis delves into the total number of COVID-19 cases in these two regions, highlighting regional differences in infection rates, responses, and challenges faced. By examining these data points side-by-side, we gain insight into how each region navigated the crisis and the factors that influenced the spread of the virus. This analysis not only underscores the scale of the pandemic across Asia and Europe but also reveals the dynamic interplay of health policies, population density, and public compliance in shaping the trajectory of COVID-19 cases in each region.</p>
                     </div>
                 </div>
                 </div>
@@ -192,7 +243,8 @@
                             <div class="item">
                                 <div class="protect_box text_align_center">
                                     <div class="desktop">
-                                        <div class="viz"></div>
+                                        <button id="toggleButton">Switch to Grouped View</button>
+                                        <div id="chart"></div>
                                     </div>
                                 </div>
                             </div>
@@ -270,6 +322,6 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.8.1/baguetteBox.min.js"></script>
         <script src="js/owl.carousel.min.js"></script>
         <script src="js/custom.js"></script>
-        <script src="js/test.js"></script>
+        <script src="js/dataset1.js"></script>
     </body>
 </html>
