@@ -30,7 +30,7 @@ const asiaCountries = [
   'Lebanon', 'Malaysia', 'Maldives', 'Mongolia', 'Myanmar', 'Nepal', 'North Korea',
   'Oman', 'Pakistan', 'Palestine', 'Philippines', 'Qatar', 'Russia', 'Saudi Arabia',
   'Singapore', 'South Korea', 'Sri Lanka', 'Syria', 'Taiwan', 'Tajikistan',
-  'Thailand', 'Timor-Leste', 'Turkey', 'Turkmenistan', 'UAE', 'Uzbekistan', 'Vietnam', 'Yemen'
+  'Thailand', 'Timor-Leste', 'Turkey', 'Turkmenistan', 'United Arab Emirates', 'Uzbekistan', 'Vietnam', 'Yemen'
 ];
 
 // Populate dropdown menus for Europe and Asia
@@ -135,7 +135,7 @@ function rotateToCountryByName(countryName) {
   const countryFeature = land.find(d => d.properties.name.toLowerCase() === countryName.toLowerCase());
   if (countryFeature) {
     const centroid = d3.geoCentroid(countryFeature);
-    d3.transition().duration(1000).tween("rotate", () => {
+    d3.transition().duration(2000).ease(d3.easeCubicOut).tween("rotate", () => {
       const r = d3.interpolate(projection.rotate(), [-centroid[0], -centroid[1]]);
       return t => { projection.rotate(r(t)); render(countryName); };
     });
