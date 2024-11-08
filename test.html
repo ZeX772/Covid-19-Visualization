@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Europe Map</title>
+    <title>Europe and Asia Map</title>
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <style>
         .country {
             stroke: white;
             stroke-width: 0.5px;
             fill: lightblue;
+            cursor: pointer;
         }
 
         .label {
@@ -23,10 +24,6 @@
         .country:hover {
             fill: steelblue;
         }
-
-        .country:hover + .label {
-            display: block;
-        }
     </style>
 </head>
 <body>
@@ -39,15 +36,16 @@
             .attr("width", width)
             .attr("height", height);
 
+        // Adjust projection to show both Europe and Asia
         const projection = d3.geoMercator()
-            .center([20, 50])  // Adjusted to show full Europe and southern regions
-            .scale(700)
+            .center([60, 40])  // Adjusted to center over both Europe and Asia
+            .scale(180)        // Adjusted scale to fit both continents
             .translate([width / 2, height / 2]);
 
         const path = d3.geoPath().projection(projection);
 
         // Load GeoJSON data and draw the map
-        d3.json("custom.geo.json").then(function(geojson) {
+        d3.json("map.json").then(function(geojson) {
             // Draw countries
             svg.selectAll("path")
                 .data(geojson.features)
