@@ -110,7 +110,7 @@
                             <li><a href="index.html">Home</a></li>
                             <li><a href="dataset2.html">Mortality</a></li>
                             <li><a href="world-map.html" class="logo_midle">WorldMap</a></li>
-                            <li><a class="active" href="dataset3.html">Multisector</a></li>
+                            <li><a class="active" href="dataset3.html">Resilience</a></li>
                             <li><a href="dataset4.html">Vaccination</a></li>
                         </ul>
                         <button class="nav-toggler">
@@ -129,8 +129,20 @@
             <div class="row d_flex">
                    <div class="col-md-4">
                   <div class="titlepage text_align_left">
-                     <h2>COVID-19 and Sectoral Impact: Industry Involvement in Asia and Europe</h2>
-                     <p>The COVID-19 pandemic has impacted industries across Asia and Europe in diverse ways, with each sector facing unique challenges and levels of involvement. From healthcare and retail to manufacturing and tourism, different industries have experienced varied disruptions, responses, and adaptations as they worked to navigate the crisis. This analysis provides a snapshot of how sectors in Asia and Europe contributed to the pandemic response, revealing regional patterns in industry resilience, workforce shifts, and economic pressures. By comparing sectoral involvement, we gain a clearer understanding of how industries across continents mobilized to meet the demands of an unprecedented global health emergency.</p>
+                     <h2>Assessing Hospital Bed Capacity in Asia and Europe in 2024: Lessons Learned from the COVID-19 Pandemic</h2>
+                     <p>In 2024, the impact of COVID-19 continues to shape healthcare systems worldwide, with hospital bed capacity remaining a key focus in preparedness strategies. This table highlights disparities in hospital bed availability across populous countries in Asia and Europe, underscoring the challenges faced during the pandemic. Countries like Japan and Germany, with high hospital beds per capita, were better equipped to handle patient surges, while nations such as India and Bangladesh, with lower capacities, struggled with overcrowded facilities. As healthcare systems rebuild post-pandemic, these insights emphasize the critical need for robust, adaptable infrastructure to respond to future health crises, ensuring that all regions are better prepared for unexpected demands.</p>
+
+
+                     <div class="explanation">
+                        <h3>Understanding Hospital Bed Distribution</h3>
+                        <p>To explain the percentage of the total hospital beds, we calculate it as the proportion of a country's hospital beds relative to the total number of hospital beds across all countries in the dataset.</p>
+                        <ol>
+                            <li><strong>Calculate Total Beds Across All Countries:</strong> Sum the <code>total_hospital_beds</code> values for all countries in the dataset.</li>
+                            <li><strong>Calculate Percentage for Each Country:</strong> For each country, divide its <code>total_hospital_beds</code> by the total beds across all countries, then multiply by 100 to get a percentage.</li>
+                            <li><strong>Interpret the Result:</strong> This percentage indicates how much of the global hospital bed capacity (within the dataset) is held by each country. For example, if a country has 10% of the total beds, it means that 10% of all available hospital beds in the dataset are located in that country.</li>
+                        </ol>
+                        <p>This approach allows you to compare hospital bed distribution across countries, highlighting which regions have a larger share of healthcare infrastructure capacity and which may be more resource-constrained.</p>
+                    </div>
                   </div>
                </div>
                <div class="col-md-8">
