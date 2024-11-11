@@ -92,11 +92,11 @@ d3.csv("Dataset3.csv").then(function(rawData) {
     
                 tooltip.html(`${d.data.key}: ${d.data.total} (${d.data.percentage}%)`)
                 tooltip.style("left", (event.pageX - 1200) + "px")
-                       .style("top", (event.pageY - 250) + "px");
+                       .style("top", (event.pageY - 750) + "px");
             })
             .on("mousemove", function(event) {
                 tooltip.style("left", (event.pageX - 1200) + "px")
-                       .style("top", (event.pageY - 250) + "px");
+                       .style("top", (event.pageY - 750) + "px");
             })
             .on("mouseleave", function() {
                 d3.select(this).transition().duration(200).attr("transform", "scale(1.0)");
