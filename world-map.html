@@ -61,18 +61,56 @@
       border-color: #0056b3;
     }
 
-    select {
-      padding: 10px;
-      font-size: 16px;
-      margin: 10px;
-      border-radius: 5px;
-      border: 1px solid #ddd;
-      background-color: #f0f0f0;
-    }
+  /* Styling for the select element */
+  select {
+    width: 280px;
+    padding: 15px 20px;
+    font-size: 18px;
+    font-weight: 500;
+    color: #333;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #f0f4ff, #d9e2f3);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    outline: none;
+    cursor: pointer;
 
-    select:hover {
-      background-color: #e0e0e0;
-    }
+    /* Remove default arrow */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+
+    /* Custom arrow */
+    background-image: url('data:image/svg+xml;charset=US-ASCII,<svg%20xmlns="http://www.w3.org/2000/svg"%20viewBox="0%200%2010%206"><polygon%20points="0,0%2010,0%205,6"%20style="fill:%23999;"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 12px;
+
+    /* Smooth transition for hover and focus */
+    transition: all 0.3s ease;
+  }
+
+  /* Hover effect */
+  select:hover {
+    background: linear-gradient(135deg, #d9e2f3, #f0f4ff);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Focus effect */
+  select:focus {
+    background: linear-gradient(135deg, #c5d1eb, #e0e9fa);
+    box-shadow: 0 6px 15px rgba(0, 123, 255, 0.3);
+  }
+
+  /* Style for disabled option (placeholder) */
+  select option[value=""][disabled] {
+    display: none;
+  }
+
+  /* Option styling */
+  select option {
+    padding: 15px;
+  }
 
     #tooltip {
       position: absolute;
@@ -410,7 +448,7 @@ background: linear-gradient(0deg, rgba(255,27,0,1) 0%, rgba(251,75,2,1) 100%);
     </div>
     
     <!-- Dropdowns for Country Selection -->
-    <div style="display: flex; gap: 10px;">
+    <div style="display: flex; gap: 10px; margin-left: 5px;">
       <select id="europeDropdown">
         <option value="">Select a country in Europe</option>
       </select>
