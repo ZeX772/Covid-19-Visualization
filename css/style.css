@@ -619,7 +619,7 @@ button {
 /** about section **/
 
 .about {
-    background: #fff;
+    /* background: #fff; */
     padding: 80px 50px;
     position: relative;
     margin: 0 70px;
