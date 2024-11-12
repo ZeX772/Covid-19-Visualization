@@ -3,84 +3,346 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Europe and Asia Map</title>
+    <title>COVID-19 Dynamic Choropleth Map</title>
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <style>
+        /* Basic styling */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f9fafb;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        #dateSlider {
+            width: 70%;
+            margin: 20px 0;
+            -webkit-appearance: none;
+            background-color: #ddd;
+            height: 8px;
+            border-radius: 5px;
+        }
+
+        #dateSlider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4a90e2;
+            cursor: pointer;
+            border: 2px solid #333;
+        }
+
+        svg {
+            width: 90vw;
+            height: 70vh;
+            border-radius: 8px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
         .country {
-            stroke: white;
+            stroke: #666;
             stroke-width: 0.5px;
-            fill: lightblue;
             cursor: pointer;
         }
 
-        .label {
-            font-family: Arial, sans-serif;
-            font-size: 10px;
-            fill: black;
-            text-anchor: middle;
-            display: none;
+        .tooltip {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            pointer-events: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        .country:hover {
-            fill: steelblue;
+        .legend {
+            position: fixed;
+            top: 20px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .legend-inner {
+            display: flex;
+            align-items: flex-start;
+        }
+
+        #legendCanvas {
+            width: 20px;
+            height: 150px;
+        }
+
+        .legend-labels {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 150px;
+            margin-left: 5px;
+        }
+
+        .label-indicator {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .label-indicator:before {
+            content: '—';
+            margin-right: 5px;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
         }
     </style>
 </head>
 <body>
-    <svg width="1000" height="800"></svg>
+    <h1>COVID-19 Deaths in Europe and Asia</h1>
+    <p>Select Date: <span id="selectedDate">2020-01-22</span></p>
+    <input type="range" id="dateSlider" min="0" max="0" value="0">
+    <div class="button-container">
+        <button id="reset">⏮ Reset</button>
+        <button id="playPause">▶ Play</button>
+        <button id="loadOriginalButton">Load Original Dataset</button>
+        <button id="loadOECDButton">Load OECD Dataset</button>
+    </div>
+    <svg></svg>
+
+    <div class="legend" id="legend">
+        <div class="legend-inner">
+            <canvas id="legendCanvas"></canvas>
+            <div class="legend-labels" id="legendLabels">
+                <div class="label-indicator"><span class="legend-label">0</span></div>
+                <div class="label-indicator"><span class="legend-label">494305</span></div>
+                <div class="label-indicator"><span class="legend-label">988609</span></div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        const width = 1000;
-        const height = 800;
+        const svg = d3.select("svg");
+        const width = parseInt(svg.style("width"));
+        const height = parseInt(svg.style("height"));
+        const playButton = document.getElementById("playPause");
+        const resetButton = document.getElementById("reset");
+        const loadOriginalButton = document.getElementById("loadOriginalButton");
+        const loadOECDButton = document.getElementById("loadOECDButton");
 
-        const svg = d3.select("svg")
-            .attr("width", width)
-            .attr("height", height);
-
-        // Adjust projection to show both Europe and Asia
         const projection = d3.geoMercator()
-            .center([60, 40])  // Adjusted to center over both Europe and Asia
-            .scale(180)        // Adjusted scale to fit both continents
+            .center([60, 40]) 
+            .scale(200)
             .translate([width / 2, height / 2]);
 
         const path = d3.geoPath().projection(projection);
 
-        // Load GeoJSON data and draw the map
-        d3.json("map.json").then(function(geojson) {
-            // Draw countries
-            svg.selectAll("path")
-                .data(geojson.features)
-                .enter().append("path")
-                .attr("class", "country")
-                .attr("d", path)
-                .append("title")
-                .text(d => d.properties.name);
+        let countryDeathData = {};
+        let dates = [];
+        let isPlaying = false;
+        let interval;
+        let isOECDDataset = false;
 
-            // Add labels
-            svg.selectAll(".label")
-                .data(geojson.features)
-                .enter().append("text")
-                .attr("class", "label")
-                .attr("transform", function(d) {
-                    return "translate(" + path.centroid(d) + ")";
-                })
-                .text(d => d.properties.name)
-                .attr("dy", ".35em");
+        function loadOriginalDataset() {
+            d3.csv("countries-aggregated.csv").then(data => {
+                countryDeathData = {};
+                dates = [];
+                isOECDDataset = false;
+                playButton.style.display = "inline";
+                resetButton.style.display = "inline";
+                
+                data.forEach(d => {
+                    const country = d.Country;
+                    const date = d.Date;
+                    const deaths = +d.Deaths;
 
-            // Show label only when hovering over the country
-            svg.selectAll(".country")
-                .on("mouseover", function(event, d) {
-                    d3.select(this).attr("fill", "steelblue");
-                    svg.selectAll(".label")
-                        .filter(function(labelD) { return labelD === d; })
-                        .style("display", "block");
-                })
-                .on("mouseout", function(event, d) {
-                    d3.select(this).attr("fill", "lightblue");
-                    svg.selectAll(".label")
-                        .filter(function(labelD) { return labelD === d; })
-                        .style("display", "none");
+                    if (!countryDeathData[date]) {
+                        countryDeathData[date] = {};
+                        dates.push(date);
+                    }
+                    countryDeathData[date][country] = deaths;
                 });
+
+                dates.sort();
+                const dateSlider = document.getElementById("dateSlider");
+                dateSlider.max = dates.length - 1;
+                
+                updateMap(dates[0]);
+            });
+        }
+
+        function loadOECDDataset() {
+            d3.csv("oecd.csv").then(data => {
+                countryDeathData = {};
+                dates = ["OECD"];  // Dummy date for static OECD data
+                isOECDDataset = true;
+                playButton.style.display = "none";  // Hide play button for OECD data
+                resetButton.style.display = "none";  // Hide reset button for OECD data
+
+                data.forEach(d => {
+                    const country = d.Country;
+                    const deaths = +d["COVID-19 deaths (2020-21 per million)"];
+                    countryDeathData["OECD"] = countryDeathData["OECD"] || {};
+                    countryDeathData["OECD"][country] = deaths;
+                });
+
+                const dateSlider = document.getElementById("dateSlider");
+                dateSlider.max = 0;
+                
+                updateMap("OECD");
+            });
+        }
+
+        function updateMap(selectedDate) {
+            const maxDeaths = d3.max(Object.values(countryDeathData[selectedDate])) || 0;
+            const colorScale = d3.scaleSequential(d3.interpolateYlGnBu).domain([0, maxDeaths]);
+
+            updateLegend(colorScale, maxDeaths);
+
+            d3.json("map.json").then(geojson => {
+                svg.selectAll("path")
+                    .data(geojson.features)
+                    .join("path")
+                    .attr("class", "country")
+                    .attr("d", path)
+                    .attr("fill", d => {
+                        const country = d.properties.name;
+                        const deaths = countryDeathData[selectedDate]?.[country] || 0;
+                        return colorScale(deaths);
+                    })
+                    .on("mouseover", (event, d) => {
+                        const country = d.properties.name;
+                        const deaths = countryDeathData[selectedDate]?.[country] || 0;
+                        const tooltipContent = isOECDDataset
+                            ? `<strong>${country}</strong><br>Deaths per million: ${deaths}`
+                            : `<strong>${country}</strong><br>Deaths: ${deaths}`;
+                        
+                        d3.select("body").append("div")
+                            .attr("class", "tooltip")
+                            .style("left", (event.pageX + 10) + "px")
+                            .style("top", (event.pageY - 20) + "px")
+                            .html(tooltipContent);
+                    })
+                    .on("mouseout", () => d3.selectAll(".tooltip").remove());
+            });
+        }
+
+        function updateLegend(colorScale, maxDeaths) {
+    const canvas = document.getElementById("legendCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const legendSteps = 11; // Number of discrete color steps
+    const stepHeight = canvas.height / legendSteps; // Height of each step
+    const labelValues = d3.range(0, maxDeaths + 1, maxDeaths / (legendSteps - 1)).map(Math.round);
+
+    // Clear previous gradient
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw discrete color bands for each step
+    labelValues.forEach((value, index) => {
+        const color = colorScale(value);
+        ctx.fillStyle = color;
+        ctx.fillRect(0, index * stepHeight, canvas.width, stepHeight);
+    });
+
+    // Clear previous labels
+    const legendLabels = document.getElementById("legendLabels");
+    legendLabels.innerHTML = "";
+
+    // Add labels for each discrete color step
+    labelValues.forEach((value, index) => {
+        const labelDiv = document.createElement("div");
+        labelDiv.classList.add("label-indicator");
+
+        const label = document.createElement("span");
+        // Format label to show "k" for thousands if the value is >= 1000
+        label.textContent = value >= 1000 ? `${(value / 1000).toFixed(1)}k` : value;
+        
+        labelDiv.style.display = "flex";
+        labelDiv.style.alignItems = "center";
+        
+        // Position each label next to the corresponding color band on the right side of the canvas
+        labelDiv.style.position = "absolute";
+        labelDiv.style.left = `${canvas.width + 10}px`; // Adjust spacing from the legend as needed
+        labelDiv.style.top = `${index * stepHeight}px`;
+
+        // Adjust font size and alignment for readability
+        label.style.fontSize = "12px";
+        label.style.marginLeft = "5px";
+
+        labelDiv.appendChild(label);
+        legendLabels.appendChild(labelDiv);
+    });
+}
+
+
+        function togglePlay() {
+            if (isPlaying) {
+                clearInterval(interval);
+                playButton.innerText = "▶ Play";
+            } else {
+                interval = setInterval(() => {
+                    let dateIndex = +dateSlider.value;
+                    if (dateIndex < dates.length - 1) {
+                        dateIndex++;
+                    } else {
+                        dateIndex = 0;
+                    }
+                    dateSlider.value = dateIndex;
+                    const selectedDate = dates[dateIndex];
+                    document.getElementById("selectedDate").innerText = selectedDate;
+                    updateMap(selectedDate);
+                }, 250);
+                playButton.innerText = "⏸ Pause";
+            }
+            isPlaying = !isPlaying;
+        }
+
+        function resetPlay() {
+            clearInterval(interval);
+            isPlaying = false;
+            dateSlider.value = 0;
+            const selectedDate = dates[0];
+            document.getElementById("selectedDate").innerText = selectedDate;
+            updateMap(selectedDate);
+            playButton.innerText = "▶ Play";
+        }
+
+        // Initialize by loading the original dataset
+        loadOriginalDataset();
+
+        // Event listeners for the dataset toggle buttons
+        loadOriginalButton.addEventListener("click", () => {
+            resetPlay();
+            loadOriginalDataset();
+        });
+
+        loadOECDButton.addEventListener("click", () => {
+            resetPlay();
+            loadOECDDataset();
+        });
+
+        playButton.addEventListener("click", togglePlay);
+        resetButton.addEventListener("click", resetPlay);
+
+        dateSlider.addEventListener("input", function() {
+            const dateIndex = +this.value;
+            const selectedDate = dates[dateIndex];
+            document.getElementById("selectedDate").innerText = selectedDate;
+            updateMap(selectedDate);
         });
     </script>
 </body>
 </html>
+

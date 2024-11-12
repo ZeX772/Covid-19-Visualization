@@ -7,9 +7,10 @@ const path = d3.geoPath(projection, context);
 
 let scaleFactor = 1, countryData = {}, datesArray = [], currentDate = null;
 let land, borders;
-const highlightColor = "#00ffff"; // Cyan for better contrast for color-blind users
+const searchHighlightColor = "#00ffff"; // Cyan for better contrast for color-blind users
+const hoverHighlightColor = "#ffcccc"; 
 
-const colors = { ocean: '#e5f5f9', borders: '#d62728' };
+const colors = { ocean: '#e5f5f9', borders: '#333' };
 
 // Full list of countries for Europe and Asia
 const europeCountries = [
@@ -30,7 +31,7 @@ const asiaCountries = [
   'Lebanon', 'Malaysia', 'Maldives', 'Mongolia', 'Myanmar', 'Nepal', 'North Korea',
   'Oman', 'Pakistan', 'Palestine', 'Philippines', 'Qatar', 'Russia', 'Saudi Arabia',
   'Singapore', 'South Korea', 'Sri Lanka', 'Syria', 'Taiwan', 'Tajikistan',
-  'Thailand', 'Timor-Leste', 'Turkey', 'Turkmenistan', 'UAE', 'Uzbekistan', 'Vietnam', 'Yemen'
+  'Thailand', 'Timor-Leste', 'Turkey', 'Turkmenistan', 'United Arab Emirates', 'Uzbekistan', 'Vietnam', 'Yemen'
 ];
 
 // Populate dropdown menus for Europe and Asia
@@ -79,36 +80,56 @@ Promise.all([
   render(); // Initial render after data is loaded
 }).catch(error => console.error("Error loading data:", error));
 
-// Render function for the globe
-function render(highlightedCountry = null) {
+// Function to render the globe with specific highlights for search and hover
+function render(highlightedCountry = null, highlightForSearch = false) {
   context.clearRect(0, 0, width, height);
+
+  // Draw the ocean with full opacity
   context.beginPath();
   path({ type: "Sphere" });
   context.fillStyle = colors.ocean;
+  context.globalAlpha = 1; // Full opacity for the ocean
   context.fill();
-  context.strokeStyle = colors.borders;
-  context.stroke();
 
+  // Draw each country
   land.forEach(feature => {
     context.beginPath();
     path(feature);
     const countryName = feature.properties.name;
     const cases = countryData[countryName]?.[currentDate] || 0;
 
-    context.fillStyle = (highlightedCountry === countryName) ? highlightColor : colorScale(cases);
+    // Check if it's the searched country and apply cyan without opacity change
+    if (highlightForSearch && countryName === highlightedCountry) {
+      context.fillStyle = searchHighlightColor; // Cyan color for searched country
+      context.globalAlpha = 1; // Full opacity for the searched country
+    } 
+    // Check if it's the hovered country by mouse and apply full opacity for the current color scale
+    else if (!highlightForSearch && highlightedCountry && countryName === highlightedCountry) {
+      context.fillStyle = colorScale(cases);
+      context.globalAlpha = 1; // Full opacity for the hovered country
+    } 
+    // For all other countries, apply reduced opacity when there is a highlighted country
+    else {
+      context.fillStyle = colorScale(cases);
+      context.globalAlpha = highlightedCountry && !highlightForSearch ? 0.3 : 1;
+    }
+
     context.fill();
-    context.strokeStyle = "#fff";
+    context.strokeStyle = colors.borders;
+    context.lineWidth = 1.2; // Increased line width for visible borders
     context.stroke();
   });
 
+  // Draw the borders between countries
   context.beginPath();
   path(borders);
   context.strokeStyle = colors.borders;
-  context.lineWidth = 0.5;
+  context.lineWidth = 1.5; // Thicker border lines for better visibility
+  context.globalAlpha = 1; // Full opacity for borders
   context.stroke();
 }
 
-// Tooltip function for hovering
+// Tooltip hover functionality
 canvas.addEventListener("mousemove", function(event) {
   const [mouseX, mouseY] = d3.pointer(event);
   const geographicCoordinates = projection.invert([mouseX, mouseY]);
@@ -121,28 +142,112 @@ canvas.addEventListener("mousemove", function(event) {
     tooltip.style("display", "block")
       .style("left", `${event.pageX + 10}px`)
       .style("top", `${event.pageY + 10}px`)
-      .html(`<strong>${countryName}</strong><br>Cases on ${currentDate}: ${cases}`);
+      .html(`<strong>${countryName}</strong><br>Cases: ${cases}`);
 
-    render(countryName);
+    render(countryName);  // Highlight the hovered country
   } else {
     tooltip.style("display", "none");
-    render(); // Reset the map rendering
+    render();  // Reset map rendering
   }
 });
 
-// Rotate to country by name and temporarily highlight
+// Rotate to country by name, highlight in cyan without opacity, and zoom in
 function rotateToCountryByName(countryName) {
-  const countryFeature = land.find(d => d.properties.name.toLowerCase() === countryName.toLowerCase());
+  const normalizedCountryName = countryName.toLowerCase();
+  const countryFeature = land.find(d => d.properties.name.toLowerCase() === normalizedCountryName);
+  
   if (countryFeature) {
     const centroid = d3.geoCentroid(countryFeature);
-    d3.transition().duration(1000).tween("rotate", () => {
+
+    // Set zoom scale factor
+    scaleFactor = 1.5;
+    projection.scale(350 * scaleFactor);
+
+    // Log for debugging
+    console.log(`Found country: ${countryFeature.properties.name}, applying rotation and cyan color`);
+
+    // Animate rotation to the target country
+    d3.transition().duration(2000).ease(d3.easeCubicOut).tween("rotate", () => {
       const r = d3.interpolate(projection.rotate(), [-centroid[0], -centroid[1]]);
-      return t => { projection.rotate(r(t)); render(countryName); };
+      return t => {
+        projection.rotate(r(t));
+        render(countryFeature.properties.name, true); // Apply cyan color directly to the searched country
+      };
     });
-    
-    setTimeout(() => render(), 3000); // Reset the highlight after 3 seconds
+
+    // Reset the highlight after 3 seconds
+    setTimeout(() => {
+      console.log(`Resetting highlight for country: ${countryFeature.properties.name}`);
+      render(); // Re-render without the cyan highlight after timeout
+    }, 3000);
+  } else {
+    console.log("Country not found:", countryName);
   }
 }
+
+// Updated render function to use cyan color for the searched country without opacity change
+function render(highlightedCountry = null, highlightForSearch = false) {
+  context.clearRect(0, 0, width, height);
+
+  // Draw the ocean with full opacity
+  context.beginPath();
+  path({ type: "Sphere" });
+  context.fillStyle = colors.ocean;
+  context.globalAlpha = 1; // Full opacity for the ocean
+  context.fill();
+
+  // Draw each country
+  land.forEach(feature => {
+    context.beginPath();
+    path(feature);
+    const countryName = feature.properties.name;
+    const cases = countryData[countryName]?.[currentDate] || 0;
+
+    // Debug log to track which country is being rendered and with what color
+    if (highlightForSearch && countryName === highlightedCountry) {
+      context.fillStyle = searchHighlightColor; // Cyan color for searched country
+      context.globalAlpha = 1; // Full opacity for the searched country
+      console.log(`Applying cyan to ${countryName}`); // Debug log
+    } else if (!highlightForSearch && highlightedCountry && countryName === highlightedCountry) {
+      context.fillStyle = colorScale(cases);
+      context.globalAlpha = 1; // Full opacity for the hovered country
+    } else {
+      context.fillStyle = colorScale(cases);
+      context.globalAlpha = highlightedCountry && !highlightForSearch ? 0.3 : 1;
+    }
+
+    context.fill();
+    context.strokeStyle = colors.borders;
+    context.lineWidth = 1.2; // Increased line width for visible borders
+    context.stroke();
+  });
+
+  // Draw the borders between countries
+  context.beginPath();
+  path(borders);
+  context.strokeStyle = colors.borders;
+  context.lineWidth = 1.5; // Thicker border lines for better visibility
+  context.globalAlpha = 1; // Full opacity for borders
+  context.stroke();
+}
+
+
+// Arrow key panning functions
+function rotateMap(direction) {
+  const rotation = projection.rotate();
+  const rotationAmount = 3;
+  if (direction === 'left') projection.rotate([rotation[0] - rotationAmount, rotation[1]]);
+  if (direction === 'right') projection.rotate([rotation[0] + rotationAmount, rotation[1]]);
+  if (direction === 'up') projection.rotate([rotation[0], rotation[1] - rotationAmount]);
+  if (direction === 'down') projection.rotate([rotation[0], rotation[1] + rotationAmount]);
+  render();
+}
+
+// Event listeners for arrow buttons
+d3.select("#arrowLeft").on("click", () => rotateMap('left'));
+d3.select("#arrowRight").on("click", () => rotateMap('right'));
+d3.select("#arrowUp").on("click", () => rotateMap('up'));
+d3.select("#arrowDown").on("click", () => rotateMap('down'));
 
 // Dropdown and search bar event handlers
 europeDropdown.on("change", function() {

@@ -111,6 +111,7 @@
       /* Light red to dark red */
       margin-right: 10px;
       border: 1px solid #ddd;
+      border-radius:8px;
     }
 
     #legend-text {
@@ -226,6 +227,7 @@
     .button-like:hover {
       background-color: #0056b3;
     }
+    
 
     #globeCanvas {
       margin-top: 100px;
@@ -234,6 +236,8 @@
     #searchBar {
       margin-bottom: 20px;
     }
+
+    
   </style>
 </head>
 
@@ -281,14 +285,34 @@
   <!-- end header -->
 
   <div class="content-container">
-    <canvas id="globeCanvas"></canvas>
-    <div id="tooltip"></div>
+   
+    <div style="position: relative; display: inline-block;">
+      <canvas id="globeCanvas" width="1000" height="700"></canvas>
+      <div id="tooltip" style="position: absolute;; pointer-events: none; background: #333; color: #fff; padding: 5px; border-radius: 3px; display: none;"></div>
+      
+      <!-- Arrow buttons for navigation with improved styling -->
+      <button id="arrowLeft" style="position: absolute; top: 50%; left: 10px; transform: translateY(-50%); font-size: 18px; padding: 10px; border: none; background: rgba(0, 0, 0, 0.5); color: white; border-radius: 50%; cursor: pointer;">
+        &lt;
+      </button>
+      <button id="arrowRight" style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); font-size: 18px; padding: 10px; border: none; background: rgba(0, 0, 0, 0.5); color: white; border-radius: 50%; cursor: pointer;">
+        &gt;
+      </button>
+      <button id="arrowUp" style="position: absolute; top: 100px; left: 50%; transform: translateX(-50%); font-size: 18px; padding: 10px; border: none; background: rgba(0, 0, 0, 0.5); color: white; border-radius: 50%; cursor: pointer;">
+        &#9650;
+      </button>
+      <button id="arrowDown" style="position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); font-size: 18px; padding: 10px; border: none; background: rgba(0, 0, 0, 0.5); color: white; border-radius: 50%; cursor: pointer;">
+        &#9660;
+      </button>
+    </div>
+    
+  
+  
 
     <!-- Zoom controls with zoom label -->
     <div id="zoomControls">
       <div id="zoomLabel">Zoom: 1.0</div>
-      <span class="button-like" id="zoomIn">+</span>
-      <span class="button-like" id="zoomOut">-</span>
+      <span class="button-85" id="zoomIn">+</span>
+      <span class="button-85" id="zoomOut">-</span>
     </div>
 
     <!-- Horizontal Color Legend -->
@@ -298,6 +322,8 @@
       <span id="legend-text">High Cases</span>
     </div>
 
+          <!-- Search Bar -->
+          <input type="text" id="searchBar" placeholder="Search for a country (case-insensitive)">
     <!-- Date Slider, Search, and Dropdowns -->
     <div style="margin-top: 20px;">
       <label for="dateSlider">Select Date:</label>
@@ -316,8 +342,7 @@
 
       <br><br>
 
-      <!-- Search Bar -->
-      <input type="text" id="searchBar" placeholder="Search for a country (case-insensitive)">
+
     </div>
   </div>
 
