@@ -111,7 +111,7 @@
       /* Light red to dark red */
       margin-right: 10px;
       border: 1px solid #ddd;
-      border-radius: 8px;
+      border-radius:8px;
     }
 
     #legend-text {
@@ -175,15 +175,7 @@
       display: block;
     }
 
-    .tooltip {
-      position: absolute;
-      padding: 8px 12px;
-      font-size: 14px;
-      background-color: rgba(0, 0, 0, 0.8);
-      color: white;
-      border-radius: 4px;
-      pointer-events: none;
-    }
+
 
     header {
       margin: 0;
@@ -203,13 +195,13 @@
 
     /* Adjust the zoom controls to ensure they appear below the header */
     #zoomControls {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      /* Space between the zoom buttons */
-      margin-top: 100px;
-      z-index: 500;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 100px;
+        z-index: 500;
+        left: 900px;
     }
 
     .button-like {
@@ -227,22 +219,111 @@
     .button-like:hover {
       background-color: #0056b3;
     }
+    
 
     #globeCanvas {
-      margin-top: 50px;
-      border-radius: 5px;
-      border: 2px;
-      box-shadow: 1px 4px 6px rgba(0, 0, 0, 0.2);
-      background-color: black;
+      margin-top: 100px;
     }
 
     #searchBar {
       margin-bottom: 20px;
     }
+    #tooltip {
+  position: absolute; /* Use absolute within the globe container */
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  display: none; /* Default to hidden */
+  z-index: 1000; /* Make sure it’s on top of other elements */
+}
+
+/* Styling for navigation arrows */
+#arrowLeft, #arrowRight, #arrowUp, #arrowDown {
+  font-size: 20px;
+  padding: 8px;
+  border: none;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+#arrowUp{
+   margin-top:70px;
+}
+
+/* Arrow hover effect */
+#arrowLeft:hover, #arrowRight:hover, #arrowUp:hover, #arrowDown:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+
+.custom-btn {
+  width: 40px;
+  height: 40px;
+  color: #fff;
+  border-radius: 5px;
+  font-family: 'Lato', sans-serif;
+  font-weight: 500;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  display: inline-block;
+   box-shadow:inset 2px 2px 2px 0px rgba(255,255,255,.5),
+   7px 7px 20px 0px rgba(0,0,0,.1),
+   4px 4px 5px 0px rgba(0,0,0,.1);
+  outline: none;
+}
+.btn-5 {
+  width: 40px;
+  height: 40px;
+  line-height: 42px;
+  padding: 0;
+  border: none;
+  font-size: 16px;
+  background: rgb(255,27,0);
+background: linear-gradient(0deg, rgba(255,27,0,1) 0%, rgba(251,75,2,1) 100%);
+}
+.btn-5:hover {
+  color: #f0094a;
+  background: transparent;
+   box-shadow:none;
+}
+.btn-5:before,
+.btn-5:after{
+  content:'';
+  position:absolute;
+  top:0;
+  right:0;
+  height:2px;
+  width:0;
+  background: #f0094a;
+  box-shadow:
+   -1px -1px 5px 0px #fff,
+   7px 7px 20px 0px #0003,
+   4px 4px 5px 0px #0002;
+  transition:400ms ease all;
+}
+.btn-5:after{
+  right:inherit;
+  top:inherit;
+  left:0;
+  bottom:0;
+}
+.btn-5:hover:before,
+.btn-5:hover:after{
+  width:100%;
+  transition:800ms ease all;
+}
   </style>
 </head>
 
 <body class="main-layout inner_page">
+  <div id="tooltip" style="display: none;"></div>
   <!-- loader  -->
   <div class="loader_bg">
     <div class="loader"><img src="images/loading.gif" alt="#" /></div>
@@ -270,8 +351,8 @@
               <ul>
                   <li><a href="index.html">Home</a></li>
                   <li><a href="dataset2.html">Mortality</a></li>
-                  <li><a class="active" href="world-map.html" class="logo_midle">World Map</a></li>
-                  <li><a href="dataset3.html">Multisector</a></li>
+                  <li><a href="world-map.html" class="active logo_midle">WorldMap</a></li>
+                  <li><a href="dataset3.html">Resilience</a></li>
                   <li><a href="dataset4.html">Vaccination</a></li>
               </ul>
               <button class="nav-toggler">
@@ -284,47 +365,90 @@
     </div>
   </header>
   <!-- end header -->
+      <!-- about -->
+      <div class="about">
+        <div class="container">
+          <div class="row">
+          <div class="col-md-12">
+              <div class="titlepage text_align_center">
+                  <h2>Total COVID-19 Deaths in Asia and Europe: Analyzing the Regional Impact</h2>
+                  <p>The COVID-19 pandemic has had a profound and varied impact across the world, with notable differences in mortality rates between regions. This analysis focuses on the total COVID-19 deaths in Asia and Europe, exploring how factors such as healthcare infrastructure, socioeconomic conditions, population demographics, and government responses have influenced the death toll. By examining regional disparities, we can gain a deeper understanding of the factors that shaped the pandemic's severity in these two diverse regions, offering insights for future preparedness and response strategies.</p>
+              </div>
+          </div>
+          </div>
+      </div>
+      <div style="width: 1200px; margin: 0 auto;">
+  
+       <!-- Container for Controls Above the Globe -->
+<div id="controlContainer" style="padding: 15px; border-radius: 8px; background-color: #f9f9f9; box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1); margin-bottom: 20px;">
 
-  <div class="content-container">
-    <canvas id="globeCanvas"></canvas>
-    <div id="tooltip"></div>
-
-    <!-- Zoom controls with zoom label -->
-    <div id="zoomControls">
-      <div id="zoomLabel">Zoom: 1.0</div>
-      <span class="button-like" id="zoomIn">+</span>
-      <span class="button-like" id="zoomOut">-</span>
+  <!-- Search Bar with Icon Button on Top -->
+  <div style="display: flex; justify-content: center; margin-bottom: 15px;">
+    <div style="position: relative; width: 400px;">
+      <input type="text" id="searchBar" placeholder="Search for a country (case-insensitive)" style="width: 100%; padding: 10px 40px 10px 20px; border-radius: 20px; border: 2px solid #007bff;">
+      <button id="searchButton" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; cursor: pointer;">
+        <i class="fa fa-search" style="font-size: 18px; color: #007bff;"></i>
+      </button>
     </div>
+  </div>
 
-    <!-- Horizontal Color Legend -->
-    <div id="legend">
-      <span id="legend-text">Low Cases &nbsp;</span>
-      <div class="legend-scale" id="legend-scale"></div>
-      <span id="legend-text">High Cases</span>
+  <!-- Row of Controls (Legend, Date Slider, and Dropdowns) -->
+  <div style="display: flex; justify-content: space-around; align-items: center;">
+    
+    <!-- Legend -->
+    <div id="legend" style="display: flex; align-items: center; margin-right: 15px;">
+      <span>Low Cases</span>
+      <div id="legendContainer" style="margin-top: 20px;"></div>
+      <span>High Cases</span>
     </div>
-
-    <!-- Date Slider, Search, and Dropdowns -->
-    <div style="margin-top: 20px;">
+    
+    <!-- Date Slider with Label Above -->
+    <div style="display: flex; flex-direction: column; align-items: center;">
       <label for="dateSlider">Select Date:</label>
-      <input type="range" id="dateSlider" min="0" max="0" value="0" step="1" style="width: 200px;">
-      <span id="selectedDate">Date</span>
-
-      <br><br>
-
-      <!-- Dropdown menus for Europe and Asia -->
+      <input type="range" id="dateSlider" min="0" max="0" value="0" step="1" style="width: 150px;">
+      <span id="selectedDate">2019-12-31</span>
+    </div>
+    
+    <!-- Dropdowns for Country Selection -->
+    <div style="display: flex; gap: 10px;">
       <select id="europeDropdown">
         <option value="">Select a country in Europe</option>
       </select>
       <select id="asiaDropdown">
         <option value="">Select a country in Asia</option>
       </select>
-
-      <br><br>
-
-      <!-- Search Bar -->
-      <input type="text" id="searchBar" placeholder="Search for a country (case-insensitive)">
     </div>
+    
   </div>
+</div>
+
+<!-- Font Awesome for the search icon -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+      
+        <!-- Globe canvas with tooltip and controls -->
+        <div style="position: relative; display: inline-block;">
+          <canvas id="globeCanvas" width="1200" height="700"></canvas>
+      
+        
+      
+          <!-- Zoom controls inside the globe at the top-right corner -->
+          <div id="zoomControls" style="position: absolute; top: 20px; right: 20px; display: flex; flex-direction: column; align-items: center;">
+            <div id="zoomLabel">Zoom: 1.0</div>
+            <span class="custom-btn btn-5" id="zoomIn">+</span>
+            <span class="custom-btn btn-5" id="zoomOut">-</span>
+          </div>
+      
+          <!-- Arrow buttons for navigation -->
+          <button id="arrowLeft" style="position: absolute; left: -20px; top: 50%; transform: translateY(-50%); background: rgba(0, 0, 0, 0.5); border-radius: 50%; color: white;">&#9664;</button>
+          <button id="arrowRight" style="position: absolute; right: -20px; top: 50%; transform: translateY(-50%); background: rgba(0, 0, 0, 0.5); border-radius: 50%; color: white;">&#9654;</button>
+          <button id="arrowUp" style="position: absolute; left: 50%; top: -20px; transform: translateX(-50%); background: rgba(0, 0, 0, 0.5); border-radius: 50%; color: white;">&#9650;</button>
+          <button id="arrowDown" style="position: absolute; left: 50%; bottom: -20px; transform: translateX(-50%); background: rgba(0, 0, 0, 0.5); border-radius: 50%; color: white;">&#9660;</button>
+        </div>
+      </div>
+      </div>
+      
+
 
 
   <footer>
