@@ -111,6 +111,81 @@
   select option {
     padding: 15px;
   }
+/* Centering and styling container */
+.date-slider-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  font-family: 'Arial', sans-serif;
+  background-color: #f9f9fc;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Label styling */
+.date-slider-container label {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+/* Slider styling */
+.date-slider-container input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 250px;
+  height: 10px;
+  background: linear-gradient(90deg, #ffd700, #ff8c00);
+  border-radius: 10px;
+  outline: none;
+  cursor: pointer;
+  transition: background 0.4s ease;
+}
+
+/* Slider thumb styling */
+.date-slider-container input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  background-color: #ff8c00;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.date-slider-container input[type="range"]::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  background-color: #ff8c00;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+/* Hover effect for the thumb */
+.date-slider-container input[type="range"]::-webkit-slider-thumb:hover,
+.date-slider-container input[type="range"]::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  background-color: #ff6f00;
+}
+
+/* Selected date display styling */
+.date-slider-container #selectedDate {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  padding: 8px 12px;
+  background-color: #fff8e1;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  border: 1px solid #ffd700;
+}
 
     #tooltip {
       position: absolute;
@@ -409,8 +484,14 @@ background: linear-gradient(0deg, rgba(255,27,0,1) 0%, rgba(251,75,2,1) 100%);
           <div class="row">
           <div class="col-md-12">
               <div class="titlepage text_align_center">
-                  <h2>Total COVID-19 Deaths in Asia and Europe: Analyzing the Regional Impact</h2>
-                  <p>The COVID-19 pandemic has had a profound and varied impact across the world, with notable differences in mortality rates between regions. This analysis focuses on the total COVID-19 deaths in Asia and Europe, exploring how factors such as healthcare infrastructure, socioeconomic conditions, population demographics, and government responses have influenced the death toll. By examining regional disparities, we can gain a deeper understanding of the factors that shaped the pandemic's severity in these two diverse regions, offering insights for future preparedness and response strategies.</p>
+                  <h2>Visualizing COVID-19's Spread: Daily Case Totals by Country in Asia and Europe</h2>
+                  <p>
+                    This world map visualizes the daily progression of COVID-19 cases across various countries in Asia and Europe, providing insights into the pandemic's trajectory. By tracking daily case counts, we can observe how the virus spread over time, with certain regions experiencing rapid increases due to factors such as population density, urbanization, and travel connectivity.
+
+                    In the early months, case counts were concentrated in a few countries but quickly escalated as international travel facilitated the spread. Later surges highlight how new variants contributed to periodic spikes even after initial waves had subsided. Additionally, disparities in government responses and healthcare capacity across countries in Asia and Europe resulted in varied case trajectories.
+                    
+                    This visualization allows us to explore each country's daily cases, revealing patterns influenced by pandemic fatigue, public health measures, and vaccine rollout challenges. The data provides a compelling view of COVID-19's global impact and underscores the importance of timely, coordinated responses in managing infectious diseases.
+                  </p>
               </div>
           </div>
           </div>
@@ -432,31 +513,27 @@ background: linear-gradient(0deg, rgba(255,27,0,1) 0%, rgba(251,75,2,1) 100%);
 
   <!-- Row of Controls (Legend, Date Slider, and Dropdowns) -->
   <div style="display: flex; justify-content: space-around; align-items: center;">
-    
     <!-- Legend -->
-    <div id="legend" style="display: flex; align-items: center; margin-right: 15px;">
+    <div id="legend" style="display: flex; align-items: center; margin-right: 5px;">
       <span>Low Cases</span>
       <div id="legendContainer" style="margin-top: 20px;"></div>
       <span>High Cases</span>
     </div>
-    
     <!-- Date Slider with Label Above -->
-    <div style="display: flex; flex-direction: column; align-items: center;">
+    <div class="date-slider-container">
       <label for="dateSlider">Select Date:</label>
-      <input type="range" id="dateSlider" min="0" max="0" value="0" step="1" style="width: 150px;">
+      <input type="range" id="dateSlider" min="0" max="0" value="0" step="1">
       <span id="selectedDate">2019-12-31</span>
     </div>
-    
     <!-- Dropdowns for Country Selection -->
-    <div style="display: flex; gap: 10px; margin-left: 5px;">
-      <select id="europeDropdown">
+    <div style="margin-left: 5px;">
+      <select id="europeDropdown" style="display: block; margin-bottom: 10px;">
         <option value="">Select a country in Europe</option>
       </select>
-      <select id="asiaDropdown">
+      <select id="asiaDropdown" style="display: block;">
         <option value="">Select a country in Asia</option>
       </select>
     </div>
-    
   </div>
 </div>
 
