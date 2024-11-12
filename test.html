@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>COVID-19 Dynamic Choropleth Map</title>
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <style>
-        /* Basic styling */
         body {
             font-family: Arial, sans-serif;
             display: flex;
@@ -17,8 +17,17 @@
             padding: 20px;
         }
 
-        h1 {
+        #mainTitle {
             color: #333;
+            margin-bottom: 5px;
+        }
+
+        .description {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 10px;
+            text-align: center;
+            max-width: 800px;
         }
 
         #dateSlider {
@@ -40,16 +49,25 @@
             border: 2px solid #333;
         }
 
-        svg {
+        .map-container {
+            position: relative;
             width: 90vw;
             height: 70vh;
             border-radius: 8px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            background-color: #cceeff;
+            /* Ocean color */
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
         }
 
         .country {
-            stroke: #666;
-            stroke-width: 0.5px;
+            stroke: #333;
+            stroke-width: 0.7px;
             cursor: pointer;
         }
 
@@ -62,44 +80,7 @@
             font-size: 14px;
             pointer-events: none;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .legend {
-            position: fixed;
-            top: 20px;
-            right: 30px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .legend-inner {
-            display: flex;
-            align-items: flex-start;
-        }
-
-        #legendCanvas {
-            width: 20px;
-            height: 150px;
-        }
-
-        .legend-labels {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            height: 150px;
-            margin-left: 5px;
-        }
-
-        .label-indicator {
-            display: flex;
-            align-items: center;
-            font-size: 12px;
-        }
-
-        .label-indicator:before {
-            content: '—';
-            margin-right: 5px;
+            visibility: hidden;
         }
 
         .button-container {
@@ -107,131 +88,247 @@
             gap: 10px;
             margin: 20px 0;
         }
+
         .custom-btn {
-  width: 40px;
-  height: 40px;
-  color: #000;
-  border-radius: 5px;
-  font-family: 'Lato', sans-serif;
-  font-weight: 500;
-  background: transparent;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  display: inline-block;
-   box-shadow:inset 2px 2px 2px 0px rgba(255,255,255,.5),
-   7px 7px 20px 0px rgba(0,0,0,.1),
-   4px 4px 5px 0px rgba(0,0,0,.1);
-  outline: none;
-}
+            width: 130px;
+            height: 40px;
+            color: #000;
+            border-radius: 5px;
+            padding: 10px 25px;
+            font-family: 'Lato', sans-serif;
+            font-weight: 500;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            display: inline-block;
+            box-shadow: inset 2px 2px 2px 0px rgba(255, 255, 255, .5),
+                7px 7px 20px 0px rgba(0, 0, 0, .1),
+                4px 4px 5px 0px rgba(0, 0, 0, .1);
+            outline: none;
+        }
+
+        #legendContainer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 70%;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        #legendBar {
+            width: 100%;
+            height: 20px;
+            background: linear-gradient(to right, #f7fcf0, #2c7fb8);
+            border-radius: 5px;
+            position: relative;
+        }
+
+        .legend-labels {
+            display: flex;
+            justify-content: space-between;
+            position: absolute;
+            top: 25px;
+            width: 100%;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .zoom-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            background: rgba(0, 0, 0, 0.1);
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        .zoom-button {
+            font-size: 18px;
+            color: white;
+            background-color: #4a90e2;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        #zoomLabel {
+            color: #333;
+            font-size: 14px;
+        }
+
         .btn-3 {
-  background: rgb(0,172,238);
-background: linear-gradient(0deg, rgba(0,172,238,1) 0%, rgba(2,126,251,1) 100%);
-  width: 130px;
-  height: 40px;
-  line-height: 42px;
-  padding: 0;
-  border: none;
-  
+            background: rgb(0, 172, 238);
+            background: linear-gradient(0deg, rgba(0, 172, 238, 1) 0%, rgba(2, 126, 251, 1) 100%);
+            width: 130px;
+            height: 40px;
+            line-height: 42px;
+            padding: 0;
+            border: none;
+
+        }
+
+        .btn-3 span {
+            position: relative;
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .btn-3:before,
+        .btn-3:after {
+            position: absolute;
+            content: "";
+            right: 0;
+            top: 0;
+            background: rgba(2, 126, 251, 1);
+            transition: all 0.3s ease;
+        }
+
+        .btn-3:before {
+            height: 0%;
+            width: 2px;
+        }
+
+        .btn-3:after {
+            width: 0%;
+            height: 2px;
+        }
+
+        .btn-3:hover {
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .btn-3:hover:before {
+            height: 100%;
+        }
+
+        .btn-3:hover:after {
+            width: 100%;
+        }
+
+        .btn-3 span:hover {
+            color: rgba(2, 126, 251, 1);
+        }
+
+        .btn-3 span:before,
+        .btn-3 span:after {
+            position: absolute;
+            content: "";
+            left: 0;
+            bottom: 0;
+            background: rgba(2, 126, 251, 1);
+            transition: all 0.3s ease;
+        }
+
+        .btn-3 span:before {
+            width: 2px;
+            height: 0%;
+        }
+
+        .btn-3 span:after {
+            width: 0%;
+            height: 2px;
+        }
+
+        .btn-3 span:hover:before {
+            height: 100%;
+        }
+
+        .btn-3 span:hover:after {
+            width: 100%;
+        }
+        .tooltip {
+    position: absolute;
+    z-index: 1000; /* Ensure it's on top */
+    visibility: hidden;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 14px;
+    pointer-events: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
-.btn-3 span {
-  position: relative;
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-.btn-3:before,
-.btn-3:after {
-  position: absolute;
-  content: "";
-  right: 0;
-  top: 0;
-   background: rgba(2,126,251,1);
-  transition: all 0.3s ease;
-}
-.btn-3:before {
-  height: 0%;
-  width: 2px;
-}
-.btn-3:after {
-  width: 0%;
-  height: 2px;
-}
-.btn-3:hover{
-   background: transparent;
-  box-shadow: none;
-}
-.btn-3:hover:before {
-  height: 100%;
-}
-.btn-3:hover:after {
-  width: 100%;
-}
-.btn-3 span:hover{
-   color: rgba(2,126,251,1);
-}
-.btn-3 span:before,
-.btn-3 span:after {
-  position: absolute;
-  content: "";
-  left: 0;
-  bottom: 0;
-   background: rgba(2,126,251,1);
-  transition: all 0.3s ease;
-}
-.btn-3 span:before {
-  width: 2px;
-  height: 0%;
-}
-.btn-3 span:after {
-  width: 0%;
-  height: 2px;
-}
-.btn-3 span:hover:before {
-  height: 100%;
-}
-.btn-3 span:hover:after {
-  width: 100%;
-}
+
     </style>
 </head>
+
 <body>
-    <h1>COVID-19 Deaths in Europe and Asia</h1>
-    <p>Select Date: <span id="selectedDate">2020-01-22</span></p>
+    <div class="tooltip" id="tooltip"></div>
+    <h1 id="mainTitle">COVID-19 Deaths (Europe vs. Asia)</h1>
+
+    <p class="description" id="description1">This visualization traces the unfolding story of COVID-19’s impact across Europe and Asia, 
+        providing a close look at how different countries responded to the pandemic over time. Through daily death counts, we can observe the virus’s 
+        spread and the factors that shaped each nation’s experience—population density, healthcare infrastructure, and public health measures. 
+        In the early stages, densely populated areas experienced rapid case escalations, with major urban centers becoming hotspots. As the pandemic 
+        progressed, some regions saw improved outcomes due to stringent public health measures, while others continued to struggle with recurring waves 
+        influenced by varying government responses and healthcare accessibility. This visualization highlights each country’s unique challenges, offering 
+        insights into how factors like healthcare readiness and demographic vulnerability played roles in the trajectories of COVID-19’s impact across Europe 
+        and Asia</p>
+    <p class="description" id="description2" style="display: none;">\This dataset sheds light on the toll of COVID-19 within OECD countries, illustrating a story of both resilience and vulnerability. By tracking deaths per million, we gain insights into how factors like healthcare policy, demographic composition, and resource allocation shaped the outcomes of the pandemic across developed nations. Differences in death rates reveal patterns influenced by timely government interventions, healthcare capacity, and vaccination strategies. The visualization allows us to compare how various OECD countries fared, understanding that while some nations managed to mitigate mortality rates, others faced significant challenges. Through this lens, we can observe how preparedness, policy decisions, and population density impacted the pandemic’s trajectory, painting a nuanced picture of COVID-19’s reach among these countries</p>
+        
+    
+
+    <p id="dateLabel">Select Date: <span id="selectedDate">2020-01-22</span></p>
     <input type="range" id="dateSlider" min="0" max="0" value="0">
+
     <div class="button-container">
+        <div id="legendContainer">
+            <div id="legendBar">
+                <div class="legend-labels" id="legendLabels">
+                    <span>Low</span>
+                    <span>High</span>
+                </div>
+            </div>
+        </div>
         <button class="custom-btn btn-3" id="reset">⏮ Reset</button>
         <button class="custom-btn btn-3" id="playPause">▶ Play</button>
-        <button class="custom-btn btn-3" id="loadOriginalButton">Load Original Dataset</button>
-        <button class="custom-btn btn-3" id="loadOECDButton">Load OECD Dataset</button>
+        <button class="custom-btn btn-3" id="loadOriginalButton">Covid-19 Dataset</button>
+        <button class="custom-btn btn-3" id="loadOECDButton">OECD Dataset</button>
     </div>
-    <svg></svg>
+    
 
-    <div class="legend" id="legend">
-        <div class="legend-inner">
-            <canvas id="legendCanvas"></canvas>
-            <div class="legend-labels" id="legendLabels">
-                <div class="label-indicator"><span class="legend-label">0</span></div>
-                <div class="label-indicator"><span class="legend-label">494305</span></div>
-                <div class="label-indicator"><span class="legend-label">988609</span></div>
-            </div>
+    <div class="map-container">
+        <svg></svg>
+
+        <div class="zoom-controls">
+            <button class="custom-btn btn-3" id="zoomIn" style="width:40px;">+</button>
+            <button class="custom-btn btn-3" id="zoomOut" style="width:40px;">-</button>
+            <div id="zoomLabel">Zoom: 1.0</div>
         </div>
     </div>
 
     <script>
-        const svg = d3.select("svg");
+        const svg = d3.select("svg")
+            .attr("width", "100%")
+            .attr("height", "100%");
+
         const width = parseInt(svg.style("width"));
         const height = parseInt(svg.style("height"));
+        const tooltip = document.getElementById("tooltip");
         const playButton = document.getElementById("playPause");
         const resetButton = document.getElementById("reset");
         const loadOriginalButton = document.getElementById("loadOriginalButton");
         const loadOECDButton = document.getElementById("loadOECDButton");
+        const dateSlider = document.getElementById("dateSlider");
+        const dateLabel = document.getElementById("dateLabel");
+        const selectedDateLabel = document.getElementById("selectedDate");
+        const zoomInButton = document.getElementById("zoomIn");
+        const zoomOutButton = document.getElementById("zoomOut");
+        const zoomLabel = document.getElementById("zoomLabel");
+        const description1 = document.getElementById("description1");
+        const description2 = document.getElementById("description2");
+        const mainTitle = document.getElementById("mainTitle");
 
-        const projection = d3.geoMercator()
-            .center([60, 40]) 
-            .scale(200)
-            .translate([width / 2, height / 2]);
-
+        const projection = d3.geoMercator().center([60, 40]).scale(200).translate([width / 2, height / 2]);
         const path = d3.geoPath().projection(projection);
 
         let countryDeathData = {};
@@ -239,15 +336,201 @@ background: linear-gradient(0deg, rgba(0,172,238,1) 0%, rgba(2,126,251,1) 100%);
         let isPlaying = false;
         let interval;
         let isOECDDataset = false;
+        let scaleFactor = 1;
+
+        function formatNumber(value) {
+            return value >= 1000000 ? (value / 1000000).toFixed(1) + 'M' : value >= 1000 ? (value / 1000).toFixed(1) + 'k' : value;
+        }
+
+        function updateMap(selectedDate) {
+            const maxDeaths = d3.max(Object.values(countryDeathData[selectedDate])) || 0;
+            const colorScale = d3.scaleSequential(d3.interpolateYlGnBu).domain([0, maxDeaths]);
+            updateLegend(maxDeaths);
+
+            d3.json("map.json").then(geojson => {
+                svg.selectAll("path")
+                    .data(geojson.features)
+                    .join("path")
+                    .attr("class", "country")
+                    .attr("d", path)
+                    .attr("fill", d => {
+                        const country = d.properties.name;
+                        const deaths = countryDeathData[selectedDate]?.[country] || 0;
+                        return colorScale(deaths);
+                    })
+                    .style("opacity", 1)
+                    .on("mouseover", function (event, d) {
+                        const country = d.properties.name;
+                        const deaths = countryDeathData[selectedDate]?.[country] || 'No data';
+
+                        // Console log for debugging
+                        console.log("Country:", country, "Deaths:", deaths);
+
+                        d3.selectAll(".country").style("opacity", 0.3);
+                        d3.select(this).style("opacity", 1);
+
+                        tooltip.innerHTML = `<strong>${country}</strong><br>Deaths: ${formatNumber(deaths)}`;
+                        tooltip.style.left = (event.pageX + 10) + 'px';
+                        tooltip.style.top = (event.pageY + 10) + 'px';
+                        tooltip.style.visibility = 'visible';
+                    })
+                    .on("mousemove", function (event) {
+                        tooltip.style.left = (event.pageX + 10) + 'px';
+                        tooltip.style.top = (event.pageY + 10) + 'px';
+                    })
+                    .on("mouseout", () => {
+                        d3.selectAll(".country").style("opacity", 1);
+                        tooltip.style.visibility = 'hidden';
+                    });
+
+            });
+        }
+
+        // Zoom functionality
+        zoomInButton.addEventListener("click", () => {
+            scaleFactor = Math.min(scaleFactor * 1.2, 5);
+            projection.scale(200 * scaleFactor);
+            zoomLabel.innerText = `Zoom: ${scaleFactor.toFixed(1)}`;
+            updateMap(dates[dateSlider.value]);
+        });
+
+        zoomOutButton.addEventListener("click", () => {
+            scaleFactor = Math.max(scaleFactor * 0.8, 0.5);
+            projection.scale(200 * scaleFactor);
+            zoomLabel.innerText = `Zoom: ${scaleFactor.toFixed(1)}`;
+            updateMap(dates[dateSlider.value]);
+        });
+        function updateLegend(maxDeaths) {
+    const legendContainer = document.getElementById("legendContainer");
+    legendContainer.innerHTML = ''; // Clear previous content
+
+    const legendWidth = 300;
+    const legendHeight = 20;
+
+    // Create SVG for legend
+    const svg = d3.select("#legendContainer")
+        .append("svg")
+        .attr("width", legendWidth + 40)
+        .attr("height", legendHeight + 50);
+
+    // Title for the legend
+    svg.append("text")
+        .attr("x", legendWidth / 2 + 20)
+        .attr("y", 15)
+        .attr("text-anchor", "middle")
+        .attr("font-size", "12px")
+        .attr("fill", "#333")
+        .text("Number of Cases");
+
+    // Define color scale based on the provided maxDeaths
+    const colorScale = d3.scaleLinear()
+        .domain([0, maxDeaths])
+        .range(["#f7fcf0", "#2c7fb8"]);
+
+    // Gradient definition
+    const defs = svg.append("defs");
+    const linearGradient = defs.append("linearGradient")
+        .attr("id", "legendGradient");
+
+    linearGradient.append("stop")
+        .attr("offset", "0%")
+        .attr("stop-color", colorScale(0));
+
+    linearGradient.append("stop")
+        .attr("offset", "100%")
+        .attr("stop-color", colorScale(maxDeaths));
+
+    // Draw the gradient rectangle
+    svg.append("rect")
+        .attr("x", 20)
+        .attr("y", 30)
+        .attr("width", legendWidth)
+        .attr("height", legendHeight)
+        .style("fill", "url(#legendGradient)")
+        .style("stroke", "#333")
+        .style("stroke-width", "0.5px");
+
+    // Add "Low" and "High" labels on either side of the gradient bar
+    svg.append("text")
+        .attr("x", 10)
+        .attr("y", 45)
+        .attr("text-anchor", "end")
+        .attr("font-size", "12px")
+        .attr("fill", "#333")
+        .text("Low");
+
+    svg.append("text")
+        .attr("x", legendWidth + 30)
+        .attr("y", 45)
+        .attr("font-size", "12px")
+        .attr("fill", "#333")
+        .text("High");
+
+    // Create scale and axis for legend ticks
+    const legendScale = d3.scaleLinear()
+        .domain([0, maxDeaths])
+        .range([0, legendWidth]);
+
+    const legendAxis = d3.axisBottom(legendScale)
+        .ticks(5)
+        .tickFormat(d => formatNumber(d));
+
+    svg.append("g")
+        .attr("transform", `translate(20, ${legendHeight + 30})`)
+        .call(legendAxis)
+        .selectAll("text")
+        .attr("font-size", "10px")
+        .attr("fill", "#333");
+}
+
+
+
+
+        function loadOECDDataset() {
+            d3.csv("oecd.csv").then(data => {
+                countryDeathData = {};
+                dates = ["OECD"];
+                isOECDDataset = true;
+
+                playButton.style.display = "none";
+                resetButton.style.display = "none";
+                dateSlider.style.display = "none";
+                dateLabel.style.display = "none";
+                loadOECDButton.style.display = "none";
+                loadOriginalButton.style.display = "inline";
+                description1.style.display = "none";
+                description2.style.display = "block";
+                mainTitle.innerText = "OECD Deaths per Million";
+
+                data.forEach(d => {
+                    const country = d.Country;
+                    const deaths = +d["COVID-19 deaths (2020-21 per million)"];
+                    countryDeathData["OECD"] = countryDeathData["OECD"] || {};
+                    countryDeathData["OECD"][country] = deaths;
+                });
+
+                const maxDeaths = d3.max(Object.values(countryDeathData["OECD"]));
+                updateLegend(maxDeaths);
+                updateMap("OECD");
+            });
+        }
 
         function loadOriginalDataset() {
             d3.csv("countries-aggregated.csv").then(data => {
                 countryDeathData = {};
                 dates = [];
                 isOECDDataset = false;
+
                 playButton.style.display = "inline";
                 resetButton.style.display = "inline";
-                
+                dateSlider.style.display = "block";
+                dateLabel.style.display = "block";
+                loadOriginalButton.style.display = "none";
+                loadOECDButton.style.display = "inline";
+                description1.style.display = "block";
+                description2.style.display = "none";
+                mainTitle.innerText = "COVID-19 Deaths (Europe vs. Asia)";
+
                 data.forEach(d => {
                     const country = d.Country;
                     const date = d.Date;
@@ -261,117 +544,16 @@ background: linear-gradient(0deg, rgba(0,172,238,1) 0%, rgba(2,126,251,1) 100%);
                 });
 
                 dates.sort();
-                const dateSlider = document.getElementById("dateSlider");
                 dateSlider.max = dates.length - 1;
-                
+
                 updateMap(dates[0]);
             });
         }
 
-        function loadOECDDataset() {
-            d3.csv("oecd.csv").then(data => {
-                countryDeathData = {};
-                dates = ["OECD"];  // Dummy date for static OECD data
-                isOECDDataset = true;
-                playButton.style.display = "none";  // Hide play button for OECD data
-                resetButton.style.display = "none";  // Hide reset button for OECD data
+        loadOriginalDataset();
 
-                data.forEach(d => {
-                    const country = d.Country;
-                    const deaths = +d["COVID-19 deaths (2020-21 per million)"];
-                    countryDeathData["OECD"] = countryDeathData["OECD"] || {};
-                    countryDeathData["OECD"][country] = deaths;
-                });
-
-                const dateSlider = document.getElementById("dateSlider");
-                dateSlider.max = 0;
-                
-                updateMap("OECD");
-            });
-        }
-
-        function updateMap(selectedDate) {
-            const maxDeaths = d3.max(Object.values(countryDeathData[selectedDate])) || 0;
-            const colorScale = d3.scaleSequential(d3.interpolateYlGnBu).domain([0, maxDeaths]);
-
-            updateLegend(colorScale, maxDeaths);
-
-            d3.json("map.json").then(geojson => {
-                svg.selectAll("path")
-                    .data(geojson.features)
-                    .join("path")
-                    .attr("class", "country")
-                    .attr("d", path)
-                    .attr("fill", d => {
-                        const country = d.properties.name;
-                        const deaths = countryDeathData[selectedDate]?.[country] || 0;
-                        return colorScale(deaths);
-                    })
-                    .on("mouseover", (event, d) => {
-                        const country = d.properties.name;
-                        const deaths = countryDeathData[selectedDate]?.[country] || 0;
-                        const tooltipContent = isOECDDataset
-                            ? `<strong>${country}</strong><br>Deaths per million: ${deaths}`
-                            : `<strong>${country}</strong><br>Deaths: ${deaths}`;
-                        
-                        d3.select("body").append("div")
-                            .attr("class", "tooltip")
-                            .style("left", (event.pageX + 10) + "px")
-                            .style("top", (event.pageY - 20) + "px")
-                            .html(tooltipContent);
-                    })
-                    .on("mouseout", () => d3.selectAll(".tooltip").remove());
-            });
-        }
-
-        function updateLegend(colorScale, maxDeaths) {
-    const canvas = document.getElementById("legendCanvas");
-    const ctx = canvas.getContext("2d");
-
-    const legendSteps = 11; // Number of discrete color steps
-    const stepHeight = canvas.height / legendSteps; // Height of each step
-    const labelValues = d3.range(0, maxDeaths + 1, maxDeaths / (legendSteps - 1)).map(Math.round);
-
-    // Clear previous gradient
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Draw discrete color bands for each step
-    labelValues.forEach((value, index) => {
-        const color = colorScale(value);
-        ctx.fillStyle = color;
-        ctx.fillRect(0, index * stepHeight, canvas.width, stepHeight);
-    });
-
-    // Clear previous labels
-    const legendLabels = document.getElementById("legendLabels");
-    legendLabels.innerHTML = "";
-
-    // Add labels for each discrete color step
-    labelValues.forEach((value, index) => {
-        const labelDiv = document.createElement("div");
-        labelDiv.classList.add("label-indicator");
-
-        const label = document.createElement("span");
-        // Format label to show "k" for thousands if the value is >= 1000
-        label.textContent = value >= 1000 ? `${(value / 1000).toFixed(1)}k` : value;
-        
-        labelDiv.style.display = "flex";
-        labelDiv.style.alignItems = "center";
-        
-        // Position each label next to the corresponding color band on the right side of the canvas
-        labelDiv.style.position = "absolute";
-        labelDiv.style.left = `${canvas.width + 10}px`; // Adjust spacing from the legend as needed
-        labelDiv.style.top = `${index * stepHeight}px`;
-
-        // Adjust font size and alignment for readability
-        label.style.fontSize = "12px";
-        label.style.marginLeft = "5px";
-
-        labelDiv.appendChild(label);
-        legendLabels.appendChild(labelDiv);
-    });
-}
-
+        playButton.addEventListener("click", togglePlay);
+        resetButton.addEventListener("click", resetPlay);
 
         function togglePlay() {
             if (isPlaying) {
@@ -387,9 +569,9 @@ background: linear-gradient(0deg, rgba(0,172,238,1) 0%, rgba(2,126,251,1) 100%);
                     }
                     dateSlider.value = dateIndex;
                     const selectedDate = dates[dateIndex];
-                    document.getElementById("selectedDate").innerText = selectedDate;
+                    selectedDateLabel.innerText = selectedDate;
                     updateMap(selectedDate);
-                }, 250);
+                }, 750 / 3);
                 playButton.innerText = "⏸ Pause";
             }
             isPlaying = !isPlaying;
@@ -400,15 +582,11 @@ background: linear-gradient(0deg, rgba(0,172,238,1) 0%, rgba(2,126,251,1) 100%);
             isPlaying = false;
             dateSlider.value = 0;
             const selectedDate = dates[0];
-            document.getElementById("selectedDate").innerText = selectedDate;
+            selectedDateLabel.innerText = selectedDate;
             updateMap(selectedDate);
             playButton.innerText = "▶ Play";
         }
 
-        // Initialize by loading the original dataset
-        loadOriginalDataset();
-
-        // Event listeners for the dataset toggle buttons
         loadOriginalButton.addEventListener("click", () => {
             resetPlay();
             loadOriginalDataset();
@@ -419,16 +597,13 @@ background: linear-gradient(0deg, rgba(0,172,238,1) 0%, rgba(2,126,251,1) 100%);
             loadOECDDataset();
         });
 
-        playButton.addEventListener("click", togglePlay);
-        resetButton.addEventListener("click", resetPlay);
-
-        dateSlider.addEventListener("input", function() {
+        dateSlider.addEventListener("input", function () {
             const dateIndex = +this.value;
             const selectedDate = dates[dateIndex];
-            document.getElementById("selectedDate").innerText = selectedDate;
+            selectedDateLabel.innerText = selectedDate;
             updateMap(selectedDate);
         });
     </script>
 </body>
-</html>
 
+</html>
