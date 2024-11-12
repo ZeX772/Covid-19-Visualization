@@ -132,6 +132,7 @@ canvas.addEventListener("mousemove", function(event) {
 
 // Rotate to country by name and temporarily highlight
 function rotateToCountryByName(countryName) {
+  console.log(countryName);
   const countryFeature = land.find(d => d.properties.name.toLowerCase() === countryName.toLowerCase());
   if (countryFeature) {
     const centroid = d3.geoCentroid(countryFeature);
@@ -166,7 +167,9 @@ asiaDropdown.on("change", function() {
 d3.select("#searchBar").on("keypress", function(event) {
   if (event.key === "Enter") {
     const searchText = this.value.trim().toLowerCase();
-    rotateToCountryByName(searchText);
+    const formattedCountryName = searchText.charAt(0).toUpperCase() + searchText.slice(1);
+
+    rotateToCountryByName(formattedCountryName);
     europeDropdown.property("value", ""); // Reset Europe dropdown
     asiaDropdown.property("value", ""); // Reset Asia dropdown
   }

@@ -91,12 +91,12 @@ d3.csv("Dataset3.csv").then(function(rawData) {
                     .style("opacity", 0.9);
     
                 tooltip.html(`${d.data.key}: ${d.data.total} (${d.data.percentage}%)`)
-                tooltip.style("left", (event.pageX - 1200) + "px")
-                       .style("top", (event.pageY - 750) + "px");
+                tooltip.style("left", (event.pageX - 900) + "px")
+                       .style("top", (event.pageY - 450) + "px");
             })
             .on("mousemove", function(event) {
-                tooltip.style("left", (event.pageX - 1200) + "px")
-                       .style("top", (event.pageY - 750) + "px");
+                tooltip.style("left", (event.pageX - 900) + "px")
+                       .style("top", (event.pageY - 450) + "px");
             })
             .on("mouseleave", function() {
                 d3.select(this).transition().duration(200).attr("transform", "scale(1.0)");

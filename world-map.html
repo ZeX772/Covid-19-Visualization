@@ -202,13 +202,13 @@
 
     /* Adjust the zoom controls to ensure they appear below the header */
     #zoomControls {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      /* Space between the zoom buttons */
-      margin-top: 100px;
-      z-index: 500;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 550px;
+        z-index: 500;
+        left: 900px;
     }
 
     .button-like {
@@ -279,47 +279,59 @@
     </div>
   </header>
   <!-- end header -->
+      <!-- about -->
+      <div class="about">
+        <div class="container">
+          <div class="row">
+          <div class="col-md-12">
+              <div class="titlepage text_align_center">
+                  <h2>COVID-19 Impact: Comparative Analysis of Total Cases in Asia and Europe</h2>
+                  <p>The COVID-19 pandemic swept through continents with profound effects, yet the spread and impact varied significantly between Asia and Europe. This comparative analysis delves into the total number of COVID-19 cases in these two regions, highlighting regional differences in infection rates, responses, and challenges faced. By examining these data points side-by-side, we gain insight into how each region navigated the crisis and the factors that influenced the spread of the virus. This analysis not only underscores the scale of the pandemic across Asia and Europe but also reveals the dynamic interplay of health policies, population density, and public compliance in shaping the trajectory of COVID-19 cases in each region.</p>
+              </div>
+          </div>
+          </div>
+      </div>
+        <canvas id="globeCanvas"></canvas>
+        <div id="tooltip"></div>
+    
+        <!-- Zoom controls with zoom label -->
+        <div id="zoomControls">
+          <div id="zoomLabel">Zoom: 1.0</div>
+          <span class="button-like" id="zoomIn">+</span>
+          <span class="button-like" id="zoomOut">-</span>
+        </div>
+    
+        <!-- Horizontal Color Legend -->
+        <div id="legend">
+          <span id="legend-text">Low Cases &nbsp;</span>
+          <div class="legend-scale" id="legend-scale"></div>
+          <span id="legend-text">High Cases</span>
+        </div>
+    
+        <!-- Date Slider, Search, and Dropdowns -->
+        <div style="margin-top: 20px;">
+          <label for="dateSlider">Select Date:</label>
+          <input type="range" id="dateSlider" min="0" max="0" value="0" step="1" style="width: 200px;">
+          <span id="selectedDate">Date</span>
+    
+          <br><br>
+    
+          <!-- Dropdown menus for Europe and Asia -->
+          <select id="europeDropdown">
+            <option value="">Select a country in Europe</option>
+          </select>
+          <select id="asiaDropdown">
+            <option value="">Select a country in Asia</option>
+          </select>
+    
+          <br><br>
+    
+          <!-- Search Bar -->
+          <input type="text" id="searchBar" placeholder="Search for a country (case-insensitive)">
+        </div>
+     </div>
+     <!-- end about -->
 
-  <div class="content-container">
-    <canvas id="globeCanvas"></canvas>
-    <div id="tooltip"></div>
-
-    <!-- Zoom controls with zoom label -->
-    <div id="zoomControls">
-      <div id="zoomLabel">Zoom: 1.0</div>
-      <span class="button-like" id="zoomIn">+</span>
-      <span class="button-like" id="zoomOut">-</span>
-    </div>
-
-    <!-- Horizontal Color Legend -->
-    <div id="legend">
-      <span id="legend-text">Low Cases &nbsp;</span>
-      <div class="legend-scale" id="legend-scale"></div>
-      <span id="legend-text">High Cases</span>
-    </div>
-
-    <!-- Date Slider, Search, and Dropdowns -->
-    <div style="margin-top: 20px;">
-      <label for="dateSlider">Select Date:</label>
-      <input type="range" id="dateSlider" min="0" max="0" value="0" step="1" style="width: 200px;">
-      <span id="selectedDate">Date</span>
-
-      <br><br>
-
-      <!-- Dropdown menus for Europe and Asia -->
-      <select id="europeDropdown">
-        <option value="">Select a country in Europe</option>
-      </select>
-      <select id="asiaDropdown">
-        <option value="">Select a country in Asia</option>
-      </select>
-
-      <br><br>
-
-      <!-- Search Bar -->
-      <input type="text" id="searchBar" placeholder="Search for a country (case-insensitive)">
-    </div>
-  </div>
 
 
   <footer>
