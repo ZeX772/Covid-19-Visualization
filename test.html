@@ -107,6 +107,92 @@
             gap: 10px;
             margin: 20px 0;
         }
+        .custom-btn {
+  width: 40px;
+  height: 40px;
+  color: #000;
+  border-radius: 5px;
+  font-family: 'Lato', sans-serif;
+  font-weight: 500;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  display: inline-block;
+   box-shadow:inset 2px 2px 2px 0px rgba(255,255,255,.5),
+   7px 7px 20px 0px rgba(0,0,0,.1),
+   4px 4px 5px 0px rgba(0,0,0,.1);
+  outline: none;
+}
+        .btn-3 {
+  background: rgb(0,172,238);
+background: linear-gradient(0deg, rgba(0,172,238,1) 0%, rgba(2,126,251,1) 100%);
+  width: 130px;
+  height: 40px;
+  line-height: 42px;
+  padding: 0;
+  border: none;
+  
+}
+.btn-3 span {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.btn-3:before,
+.btn-3:after {
+  position: absolute;
+  content: "";
+  right: 0;
+  top: 0;
+   background: rgba(2,126,251,1);
+  transition: all 0.3s ease;
+}
+.btn-3:before {
+  height: 0%;
+  width: 2px;
+}
+.btn-3:after {
+  width: 0%;
+  height: 2px;
+}
+.btn-3:hover{
+   background: transparent;
+  box-shadow: none;
+}
+.btn-3:hover:before {
+  height: 100%;
+}
+.btn-3:hover:after {
+  width: 100%;
+}
+.btn-3 span:hover{
+   color: rgba(2,126,251,1);
+}
+.btn-3 span:before,
+.btn-3 span:after {
+  position: absolute;
+  content: "";
+  left: 0;
+  bottom: 0;
+   background: rgba(2,126,251,1);
+  transition: all 0.3s ease;
+}
+.btn-3 span:before {
+  width: 2px;
+  height: 0%;
+}
+.btn-3 span:after {
+  width: 0%;
+  height: 2px;
+}
+.btn-3 span:hover:before {
+  height: 100%;
+}
+.btn-3 span:hover:after {
+  width: 100%;
+}
     </style>
 </head>
 <body>
@@ -114,10 +200,10 @@
     <p>Select Date: <span id="selectedDate">2020-01-22</span></p>
     <input type="range" id="dateSlider" min="0" max="0" value="0">
     <div class="button-container">
-        <button id="reset">⏮ Reset</button>
-        <button id="playPause">▶ Play</button>
-        <button id="loadOriginalButton">Load Original Dataset</button>
-        <button id="loadOECDButton">Load OECD Dataset</button>
+        <button class="custom-btn btn-3" id="reset">⏮ Reset</button>
+        <button class="custom-btn btn-3" id="playPause">▶ Play</button>
+        <button class="custom-btn btn-3" id="loadOriginalButton">Load Original Dataset</button>
+        <button class="custom-btn btn-3" id="loadOECDButton">Load OECD Dataset</button>
     </div>
     <svg></svg>
 

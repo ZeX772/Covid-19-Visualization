@@ -343,9 +343,15 @@ function createDynamicLegend(min, max) {
     .domain([min, max])
     .range([0, legendWidth]);
 
-  const legendAxis = d3.axisBottom(legendScale)
+    const legendAxis = d3.axisBottom(legendScale)
     .ticks(5)
-    .tickFormat(d => Math.round(d));
+    .tickFormat(d => {
+      // Format numbers based on size
+      if (d >= 1000000) return `${d / 1000000}M`; // 1,000,000 becomes "1M"
+      if (d >= 1000) return `${d / 1000}k`;        // 1,000 becomes "1k"
+      return d;                                   // Display smaller numbers as-is
+    });
+  
 
   svg.append("g")
     .attr("transform", `translate(20, ${legendHeight + 30})`)
