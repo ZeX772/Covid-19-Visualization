@@ -1284,3 +1284,9 @@ padding-bottom: 40px;}
   top: 0;
   border-radius: 10px;
 }
+.top_infomation {
+    list-style: none;
+    padding: 0;
+    margin-left: -10px; /* Adjust this value as needed to shift left */
+    color: #fff; /* Adjust text color as needed */
+}
