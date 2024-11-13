@@ -1,88 +1,810 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Europe Map</title>
+    <title>Interactive Globe with COVID Data</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- mobile metas -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <!-- site metas -->
+    <title>Covid Data Visualization</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!-- bootstrap css -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- style css -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Responsive-->
+    <link rel="stylesheet" href="css/responsive.css">
+    <!-- fevicon -->
+    <link rel="icon" href="images/fevicon.png" type="image/gif" />
+    <!-- Scrollbar Custom CSS -->
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
+    <link rel="stylesheet" href="css/owl.carousel.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css"
+        media="screen">
+    <link rel="stylesheet" href="https://rawgit.com/LeshikJanz/libraries/master/Bootstrap/baguetteBox.min.css">
     <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/topojson@3"></script>
     <style>
-        .country {
-            stroke: white;
-            stroke-width: 0.5px;
-            fill: lightblue;
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 20px;
         }
 
-        .label {
-            font-family: Arial, sans-serif;
-            font-size: 10px;
-            fill: black;
-            text-anchor: middle;
+        canvas {
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        #searchBar {
+            width: 250px;
+            padding: 10px;
+            border-radius: 20px;
+            border: 2px solid #007bff;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            font-size: 16px;
+            margin-top: 20px;
+            outline: none;
+        }
+
+        #searchBar:hover,
+        #searchBar:focus {
+            border-color: #0056b3;
+        }
+
+        /* Styling for the select element */
+        select {
+            width: 280px;
+            padding: 15px 20px;
+            font-size: 18px;
+            font-weight: 500;
+            color: #333;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #f0f4ff, #d9e2f3);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            outline: none;
+            cursor: pointer;
+
+            /* Remove default arrow */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+
+            /* Custom arrow */
+            background-image: url('data:image/svg+xml;charset=US-ASCII,<svg%20xmlns="http://www.w3.org/2000/svg"%20viewBox="0%200%2010%206"><polygon%20points="0,0%2010,0%205,6"%20style="fill:%23999;"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 12px;
+
+            /* Smooth transition for hover and focus */
+            transition: all 0.3s ease;
+        }
+
+        /* Hover effect */
+        select:hover {
+            background: linear-gradient(135deg, #d9e2f3, #f0f4ff);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Focus effect */
+        select:focus {
+            background: linear-gradient(135deg, #c5d1eb, #e0e9fa);
+            box-shadow: 0 6px 15px rgba(0, 123, 255, 0.3);
+        }
+
+        /* Style for disabled option (placeholder) */
+        select option[value=""][disabled] {
             display: none;
         }
 
-        .country:hover {
-            fill: steelblue;
+        /* Option styling */
+        select option {
+            padding: 15px;
         }
 
-        .country:hover + .label {
+        /* Centering and styling container */
+        .date-slider-container {
+            width: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            font-family: 'Arial', sans-serif;
+            background-color: #f9f9fc;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        /* Label styling */
+        .date-slider-container label {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        /* Slider styling */
+        .date-slider-container input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 900px;
+            height: 10px;
+            background: rgb(0, 172, 238);
+            background: linear-gradient(0deg, rgba(0, 172, 238, 1) 0%, rgba(2, 126, 251, 1) 100%);
+            border-radius: 10px;
+            outline: none;
+            cursor: pointer;
+            transition: background 0.4s ease;
+        }
+
+        /* Slider thumb styling */
+        .date-slider-container input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background-color: rgb(0, 172, 238);
+            background: linear-gradient(0deg, rgba(0, 172, 238, 1) 0%, rgba(2, 126, 251, 1) 100%);
+            border: 2px solid #fff;
+            border-radius: 50%;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease;
+        }
+
+        .date-slider-container input[type="range"]::-moz-range-thumb {
+            width: auto;
+            height: 24px;
+            background-color: rgb(0, 172, 238);
+            background: linear-gradient(0deg, rgba(0, 172, 238, 1) 0%, rgba(2, 126, 251, 1) 100%);
+            border: 2px solid #fff;
+            border-radius: 50%;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease;
+        }
+
+        /* Hover effect for the thumb */
+        .date-slider-container input[type="range"]::-webkit-slider-thumb:hover,
+        .date-slider-container input[type="range"]::-moz-range-thumb:hover {
+            transform: scale(1.2);
+            background: rgb(0, 172, 238);
+            background: linear-gradient(0deg, rgba(0, 172, 238, 1) 0%, rgba(2, 126, 251, 1) 100%);
+        }
+
+        /* Selected date display styling */
+        .date-slider-container #selectedDate {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            padding: 8px 12px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgb(0, 172, 238);
+        }
+
+        #tooltip {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            padding: 5px;
+            border-radius: 5px;
+            font-size: 12px;
+            pointer-events: none;
+            display: none;
+            z-index: 10;
+        }
+
+        #zoomControls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        #legend {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        #legend-scale {
+            display: flex;
+            width: 200px;
+            height: 15px;
+            background: linear-gradient(to right, #ffcccc, #990000);
+            /* Light red to dark red */
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        #legend-text {
+            font-size: 14px;
+            color: #555;
+        }
+
+
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 500;
+            color: #666;
+            background-color: #f0f0f0;
+            border-radius: 4px 4px 0 0;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .tab:hover {
+            background-color: #e0e0e0;
+        }
+
+        .tab.active {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 500px;
+            /* Increased chart height */
+        }
+
+        .chart {
+            display: none;
+        }
+
+        .chart.active {
             display: block;
+        }
+
+
+
+        header {
+            margin: 0;
+            padding: 0;
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+            top: 0;
+        }
+
+        /* Content container is positioned below the fixed header */
+        .content-container {
+            margin-top: 80px;
+            /* Adjust based on the header height */
+            padding: 0 20px;
+        }
+
+
+        #tooltip {
+            position: absolute;
+            /* Use absolute within the globe container */
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: none;
+            /* Default to hidden */
+            z-index: 1000;
+            /* Make sure it’s on top of other elements */
+        }
+
+        .country {
+            stroke: #333;
+            stroke-width: 0.7px;
+            cursor: pointer;
+        }
+
+        .custom-btn {
+            width: 40px;
+            height: 40px;
+            color: #000;
+            border-radius: 5px;
+            font-family: 'Lato', sans-serif;
+            font-weight: 500;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            display: inline-block;
+            box-shadow: inset 2px 2px 2px 0px rgba(255, 255, 255, .5),
+                7px 7px 20px 0px rgba(0, 0, 0, .1),
+                4px 4px 5px 0px rgba(0, 0, 0, .1);
+            outline: none;
+        }
+
+        /* Container for legend and control buttons */
+        .controls-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+
+            width: auto;
+            margin-bottom: 20px;
+        }
+
+        #legendContainer {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        #legendBar {
+            width: 150px;
+            height: 20px;
+            background: linear-gradient(to right, #f7fcf0, #2c7fb8);
+            border-radius: 5px;
+            position: relative;
+        }
+
+        .custom-btn {
+            padding: 8px 16px;
+            margin: 0 5px;
+            font-size: 14px;
+        }
+
+        /* Container for the map and zoom controls */
+        .map-container {
+            position: relative;
+            width: 100%;
+            height: 70vh;
+            border-radius: 8px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            background-color: #cceeff;
+        }
+
+        .zoom-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            background: rgba(0, 0, 0, 0.1);
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        #zoomLabel {
+            color: #333;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .btn-3 {
+            background: rgb(0, 172, 238);
+            background: linear-gradient(0deg, rgba(0, 172, 238, 1) 0%, rgba(2, 126, 251, 1) 100%);
+            width: 130px;
+            height: 40px;
+            line-height: 42px;
+            padding: 0;
+            border: none;
+
+        }
+
+        .btn-3 span {
+            position: relative;
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .btn-3:before,
+        .btn-3:after {
+            position: absolute;
+            content: "";
+            right: 0;
+            top: 0;
+            background: rgba(2, 126, 251, 1);
+            transition: all 0.3s ease;
+        }
+
+        .btn-3:before {
+            height: 0%;
+            width: 2px;
+        }
+
+        .btn-3:after {
+            width: 0%;
+            height: 2px;
+        }
+
+        .btn-3:hover {
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .btn-3:hover:before {
+            height: 100%;
+        }
+
+        .btn-3:hover:after {
+            width: 100%;
+        }
+
+        .btn-3 span:hover {
+            color: rgba(2, 126, 251, 1);
+        }
+
+        .btn-3 span:before,
+        .btn-3 span:after {
+            position: absolute;
+            content: "";
+            left: 0;
+            bottom: 0;
+            background: rgba(2, 126, 251, 1);
+            transition: all 0.3s ease;
+        }
+
+        .btn-3 span:before {
+            width: 2px;
+            height: 0%;
+        }
+
+        .btn-3 span:after {
+            width: 0%;
+            height: 2px;
+        }
+
+        .btn-3 span:hover:before {
+            height: 100%;
+        }
+
+        .btn-3 span:hover:after {
+            width: 100%;
+        }
+
+
+        #legendContainer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 700px;
+            /* Adjust width to ensure enough space */
+            margin: 10px auto;
+        }
+
+        #legendBar {
+            flex-grow: 1;
+            height: 15px;
+            background: linear-gradient(to right, #f7fcf0, #2c7fb8);
+            border-radius: 5px;
+            margin: 0 10px;
+        }
+
+        .legend-labels {
+            font-size: 12px;
+            color: #666;
+            width: 30px;
+            /* Explicit width for labels */
+            text-align: center;
+        }
+
+
+        .tooltip {
+            position: absolute;
+            z-index: 1000;
+            /* Ensure it's on top */
+            visibility: hidden;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            pointer-events: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #legendContainer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 600px;
+            /* Adjust width as needed */
+            margin: 10px auto;
+        }
+
+        #legendBar {
+            flex-grow: 1;
+            height: 15px;
+            background: linear-gradient(to right, #f7fcf0, #2c7fb8);
+            /* Adjust colors as needed */
+            border-radius: 5px;
+            margin: 0 10px;
+            /* Adds space between the labels and the gradient bar */
+        }
+
+        .legend-labels {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            padding: 0 5px;
+        }
+
+        /* Features container styling */
+        .features-container {
+            padding: 20px;
+            background-color: #f9f9fc;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            /* Space between features and map */
+        }
+
+
+        /* Date slider container styling */
+        .date-slider-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        /* Controls container styling */
+        .controls-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            padding-top: 10px;
+        }
+
+        /* Legend container styling */
+        #legendContainer {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Legend bar styling */
+        #legendBar {
+            width: 200px;
+            height: 15px;
+            background: linear-gradient(to right, #f7fcf0, #2c7fb8);
+            border-radius: 5px;
+        }
+
+        /* Map container styling */
+        .map-container {
+            position: relative;
+            width: 100%;
+            height: 70vh;
+            border-radius: 8px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            background-color: #cceeff;
         }
     </style>
 </head>
-<body>
-    <svg width="3000" height="2000"></svg>
-    <script>
-        const width = 3000;
-        const height = 2000;
 
-        const svg = d3.select("svg")
-            .attr("width", width)
-            .attr("height", height);
+<body class="main-layout inner_page">
+    <div id="tooltip"></div>
 
-        const projection = d3.geoMercator()
-            .center([20, 50])  // Adjusted to show full Europe and southern regions
-            .scale(700)
-            .translate([width / 2, height / 2]);
 
-        const path = d3.geoPath().projection(projection);
 
-        // Load GeoJSON data and draw the map
-        d3.json("map.json").then(function(geojson) {
-            // Draw countries
-            svg.selectAll("path")
-                .data(geojson.features)
-                .enter().append("path")
-                .attr("class", "country")
-                .attr("d", path)
-                .append("title")
-                .text(d => d.properties.name);
+    <!-- loader  -->
+    <div class="loader_bg">
+        <div class="loader"><img src="images/loading.gif" alt="#" /></div>
+    </div>
+    <!-- end loader -->
+    <!-- top -->
+    <!-- header -->
+    <header class="header-area">
+        <!-- <div class="left">
+         <a href="Javascript:void(0)"><i class="fa fa-search" aria-hidden="true"></i></a>
+     </div>
+     <div class="right">
+         <a href="Javascript:void(0)"><i class="fa fa-user" aria-hidden="true"></i></a>
+     </div> -->
+        <div class="container">
+            <div class="row d_flex">
+                <div class="col-sm-3 logo_sm">
+                    <div class="logo">
+                        <a href="index.html"></a>
+                    </div>
+                </div>
+                <div class="col-lg-10 offset-lg-1 col-md-12 col-sm-9">
+                    <div class="navbar-area">
+                        <nav class="site-navbar">
+                            <ul>
+                                <li><a href="index.html">Home</a></li>
+                                <li><a href="dataset2.html">Mortality</a></li>
+                                <li><a href="world-map.html">WorldMap</a></li>
+                                <li><a href="dataset3.html">Resilience</a></li>
+                                <li><a href="dataset4.html">Vaccination</a></li>
+                                <li><a href="map.html"  class="active logo_midle">Death</a></li>
+                                
+                            </ul>
+                            <button class="nav-toggler">
+                                <span></span>
+                            </button>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- end header -->
+    <!-- about -->
+    <div class="about">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="titlepage text_align_center">
+                        <h1 id="mainTitle">COVID-19 Deaths (Europe vs. Asia)</h1>
 
-            // Add labels
-            svg.selectAll(".label")
-                .data(geojson.features)
-                .enter().append("text")
-                .attr("class", "label")
-                .attr("transform", function(d) {
-                    return "translate(" + path.centroid(d) + ")";
-                })
-                .text(d => d.properties.name)
-                .attr("dy", ".35em");
+                        <p class="description" id="description1">This visualization traces the unfolding story of
+                            COVID-19’s impact across Europe and Asia,
+                            providing a close look at how different countries responded to the pandemic over time.
+                            Through daily death counts, we can observe the virus’s
+                            spread and the factors that shaped each nation’s experience—population density, healthcare
+                            infrastructure, and public health measures.
+                            In the early stages, densely populated areas experienced rapid case escalations, with major
+                            urban centers becoming hotspots. As the pandemic
+                            progressed, some regions saw improved outcomes due to stringent public health measures,
+                            while others continued to struggle with recurring waves
+                            influenced by varying government responses and healthcare accessibility. This visualization
+                            highlights each country’s unique challenges, offering
+                            insights into how factors like healthcare readiness and demographic vulnerability played
+                            roles in the trajectories of COVID-19’s impact across Europe
+                            and Asia</p>
+                        <p class="description" id="description2" style="display: none;">This dataset sheds light on the
+                            toll of COVID-19 within OECD countries, illustrating a story of both resilience and
+                            vulnerability. By tracking deaths per million, we gain insights into how factors like
+                            healthcare policy, demographic composition, and resource allocation shaped the outcomes of
+                            the pandemic across developed nations. Differences in death rates reveal patterns influenced
+                            by timely government interventions, healthcare capacity, and vaccination strategies. The
+                            visualization allows us to compare how various OECD countries fared, understanding that
+                            while some nations managed to mitigate mortality rates, others faced significant challenges.
+                            Through this lens, we can observe how preparedness, policy decisions, and population density
+                            impacted the pandemic’s trajectory, painting a nuanced picture of COVID-19’s reach among
+                            these countries</p>
 
-            // Show label only when hovering over the country
-            svg.selectAll(".country")
-                .on("mouseover", function(event, d) {
-                    d3.select(this).attr("fill", "steelblue");
-                    svg.selectAll(".label")
-                        .filter(function(labelD) { return labelD === d; })
-                        .style("display", "block");
-                })
-                .on("mouseout", function(event, d) {
-                    d3.select(this).attr("fill", "lightblue");
-                    svg.selectAll(".label")
-                        .filter(function(labelD) { return labelD === d; })
-                        .style("display", "none");
-                });
-        });
-    </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="width: 1200px; margin: 0 auto;">
+            <!-- Features Container (Date Slider, Legend, Buttons) -->
+            <div class="features-container">
+                <!-- Date Slider -->
+                <div class="date-slider-container">
+                    <p id="dateLabel">Select Date: <span id="selectedDate">2022-04-16</span></p>
+                    <input type="range" id="dateSlider" min="0" max="0" value="0">
+                </div>
+
+                <!-- Controls (Legend and Buttons) -->
+                <div class="controls-container">
+                    <div id="legendContainer">
+                        <span class="legend-labels">Low</span>
+                        <div id="legendBar"></div>
+                        <span class="legend-labels">High</span>
+                    </div>
+                    <button class="custom-btn btn-3" id="reset">⏮ Reset</button>
+                    <button class="custom-btn btn-3" id="playPause">▶ Play</button>
+                    <button class="custom-btn btn-3" id="loadOriginalButton">Covid-19 Dataset</button>
+                    <button class="custom-btn btn-3" id="loadOECDButton">OECD Dataset</button>
+                </div>
+            </div>
+
+
+
+            <!-- Map Container -->
+            <div class="map-container">
+                <svg></svg>
+                <div class="zoom-controls">
+                    <button class="custom-btn btn-3" id="zoomIn" style="width:40px;">+</button>
+                    <button class="custom-btn btn-3" id="zoomOut" style="width:40px;">-</button>
+                    <div id="zoomLabel">Zoom: 1.0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+    <footer>
+        <div class="footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-2 col-md-6 col-sm-6">
+                        <div class="hedingh3 text_align_left">
+                            <h3>Resources</h3>
+                            <ul class="menu_footer">
+                                <li>OECD
+                                <li>
+                                <li>WHO
+                                <li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 col-sm-6">
+                        <div class="hedingh3 text_align_left">
+                            <h3>About</h3>
+                            <p>This visualization compares COVID-19 outcomes in Asia and Europe, focusing on
+                                socioeconomic,
+                                demographic, and healthcare factors. It highlights how differences in population
+                                density, age, GDP, and
+                                healthcare resources influenced the pandemic's impact across the two regions.</p>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6 col-sm-6">
+                        <div class="hedingh3  text_align_left">
+                            <h3>Contact Us</h3>
+                            <ul class="top_infomation">
+                                <li><i class="fa fa-map-marker" aria-hidden="true"></i>
+                                    INTI SUBANG
+                                </li>
+                                <li><i class="fa fa-envelope" aria-hidden="true"></i>
+                                    <a href="Javascript:void(0)">Email : demo@gmail.com</a>
+                                </li>
+                            </ul>
+
+
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6 col-sm-6">
+                        <div class="hedingh3 text_align_left">
+                            <h3>countrys</h3>
+                            <div class="map">
+                                <img src="images/map.png" alt="#" />
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="copyright">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-8 offset-md-2">
+                            <p>© 2024 All Rights Reserved. Design by Group 2</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- end footer -->
+    <!-- Javascript files-->
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.8.1/baguetteBox.min.js"></script>
+    <script src="js/owl.carousel.min.js"></script>
+    <script src="js/custom.js"></script>
+    <script src="js/map.js"></script>
 </body>
+
 </html>

@@ -61,18 +61,131 @@
       border-color: #0056b3;
     }
 
-    select {
-      padding: 10px;
-      font-size: 16px;
-      margin: 10px;
-      border-radius: 5px;
-      border: 1px solid #ddd;
-      background-color: #f0f0f0;
-    }
+  /* Styling for the select element */
+  select {
+    width: 280px;
+    padding: 15px 20px;
+    font-size: 18px;
+    font-weight: 500;
+    color: #333;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #f0f4ff, #d9e2f3);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    outline: none;
+    cursor: pointer;
 
-    select:hover {
-      background-color: #e0e0e0;
-    }
+    /* Remove default arrow */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+
+    /* Custom arrow */
+    background-image: url('data:image/svg+xml;charset=US-ASCII,<svg%20xmlns="http://www.w3.org/2000/svg"%20viewBox="0%200%2010%206"><polygon%20points="0,0%2010,0%205,6"%20style="fill:%23999;"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 12px;
+
+    /* Smooth transition for hover and focus */
+    transition: all 0.3s ease;
+  }
+
+  /* Hover effect */
+  select:hover {
+    background: linear-gradient(135deg, #d9e2f3, #f0f4ff);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Focus effect */
+  select:focus {
+    background: linear-gradient(135deg, #c5d1eb, #e0e9fa);
+    box-shadow: 0 6px 15px rgba(0, 123, 255, 0.3);
+  }
+
+  /* Style for disabled option (placeholder) */
+  select option[value=""][disabled] {
+    display: none;
+  }
+
+  /* Option styling */
+  select option {
+    padding: 15px;
+  }
+/* Centering and styling container */
+.date-slider-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  font-family: 'Arial', sans-serif;
+  background-color: #f9f9fc;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Label styling */
+.date-slider-container label {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+/* Slider styling */
+.date-slider-container input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 250px;
+  height: 10px;
+  background: linear-gradient(90deg, #ffd700, #ff8c00);
+  border-radius: 10px;
+  outline: none;
+  cursor: pointer;
+  transition: background 0.4s ease;
+}
+
+/* Slider thumb styling */
+.date-slider-container input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  background-color: #ff8c00;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.date-slider-container input[type="range"]::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  background-color: #ff8c00;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+/* Hover effect for the thumb */
+.date-slider-container input[type="range"]::-webkit-slider-thumb:hover,
+.date-slider-container input[type="range"]::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  background-color: #ff6f00;
+}
+
+/* Selected date display styling */
+.date-slider-container #selectedDate {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  padding: 8px 12px;
+  background-color: #fff8e1;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  border: 1px solid #ffd700;
+}
 
     #tooltip {
       position: absolute;
@@ -175,15 +288,7 @@
       display: block;
     }
 
-    .tooltip {
-      position: absolute;
-      padding: 8px 12px;
-      font-size: 14px;
-      background-color: rgba(0, 0, 0, 0.8);
-      color: white;
-      border-radius: 4px;
-      pointer-events: none;
-    }
+
 
     header {
       margin: 0;
@@ -203,13 +308,13 @@
 
     /* Adjust the zoom controls to ensure they appear below the header */
     #zoomControls {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      /* Space between the zoom buttons */
-      margin-top: 100px;
-      z-index: 500;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 100px;
+        z-index: 500;
+        left: 900px;
     }
 
     .button-like {
@@ -236,12 +341,102 @@
     #searchBar {
       margin-bottom: 20px;
     }
+    #tooltip {
+  position: absolute; /* Use absolute within the globe container */
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  display: none; /* Default to hidden */
+  z-index: 1000; /* Make sure it’s on top of other elements */
+}
 
-    
+/* Styling for navigation arrows */
+#arrowLeft, #arrowRight, #arrowUp, #arrowDown {
+  font-size: 20px;
+  padding: 8px;
+  border: none;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+#arrowUp{
+   margin-top:70px;
+}
+
+/* Arrow hover effect */
+#arrowLeft:hover, #arrowRight:hover, #arrowUp:hover, #arrowDown:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+
+.custom-btn {
+  width: 40px;
+  height: 40px;
+  color: #fff;
+  border-radius: 5px;
+  font-family: 'Lato', sans-serif;
+  font-weight: 500;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  display: inline-block;
+   box-shadow:inset 2px 2px 2px 0px rgba(255,255,255,.5),
+   7px 7px 20px 0px rgba(0,0,0,.1),
+   4px 4px 5px 0px rgba(0,0,0,.1);
+  outline: none;
+}
+.btn-5 {
+  width: 40px;
+  height: 40px;
+  line-height: 42px;
+  padding: 0;
+  border: none;
+  font-size: 16px;
+  background: rgb(255,27,0);
+background: linear-gradient(0deg, rgba(255,27,0,1) 0%, rgba(251,75,2,1) 100%);
+}
+.btn-5:hover {
+  color: #f0094a;
+  background: transparent;
+   box-shadow:none;
+}
+.btn-5:before,
+.btn-5:after{
+  content:'';
+  position:absolute;
+  top:0;
+  right:0;
+  height:2px;
+  width:0;
+  background: #f0094a;
+  box-shadow:
+   -1px -1px 5px 0px #fff,
+   7px 7px 20px 0px #0003,
+   4px 4px 5px 0px #0002;
+  transition:400ms ease all;
+}
+.btn-5:after{
+  right:inherit;
+  top:inherit;
+  left:0;
+  bottom:0;
+}
+.btn-5:hover:before,
+.btn-5:hover:after{
+  width:100%;
+  transition:800ms ease all;
+}
   </style>
 </head>
 
 <body class="main-layout inner_page">
+  <div id="tooltip" style="display: none;"></div>
   <!-- loader  -->
   <div class="loader_bg">
     <div class="loader"><img src="images/loading.gif" alt="#" /></div>
@@ -269,9 +464,9 @@
               <ul>
                   <li><a href="index.html">Home</a></li>
                   <li><a href="dataset2.html">Mortality</a></li>
-                  <li><a href="world-map.html" class="logo_midle">WorldMap</a></li>
-                  <li><a href="dataset3.html">Multisector</a></li>
-                  <li><a class="active" href="dataset4.html">Vaccination</a></li>
+                  <li><a href="world-map.html" class="active logo_midle">WorldMap</a></li>
+                  <li><a href="dataset3.html">Resilience</a></li>
+                  <li><a href="dataset4.html">Vaccination</a></li>
               </ul>
               <button class="nav-toggler">
               <span></span>
@@ -283,68 +478,92 @@
     </div>
   </header>
   <!-- end header -->
+      <!-- about -->
+      <div class="about">
+        <div class="container">
+          <div class="row">
+          <div class="col-md-12">
+              <div class="titlepage text_align_center">
+                  <h2>Visualizing COVID-19's Spread: Daily Case Totals by Country in Asia and Europe</h2>
+                  <p>
+                    This world map visualizes the daily progression of COVID-19 cases across various countries in Asia and Europe, providing insights into the pandemic's trajectory. By tracking daily case counts, we can observe how the virus spread over time, with certain regions experiencing rapid increases due to factors such as population density, urbanization, and travel connectivity.
 
-  <div class="content-container">
-   
-    <div style="position: relative; display: inline-block;">
-      <canvas id="globeCanvas" width="1000" height="700"></canvas>
-      <div id="tooltip" style="position: absolute;; pointer-events: none; background: #333; color: #fff; padding: 5px; border-radius: 3px; display: none;"></div>
-      
-      <!-- Arrow buttons for navigation with improved styling -->
-      <button id="arrowLeft" style="position: absolute; top: 50%; left: 10px; transform: translateY(-50%); font-size: 18px; padding: 10px; border: none; background: rgba(0, 0, 0, 0.5); color: white; border-radius: 50%; cursor: pointer;">
-        &lt;
-      </button>
-      <button id="arrowRight" style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); font-size: 18px; padding: 10px; border: none; background: rgba(0, 0, 0, 0.5); color: white; border-radius: 50%; cursor: pointer;">
-        &gt;
-      </button>
-      <button id="arrowUp" style="position: absolute; top: 100px; left: 50%; transform: translateX(-50%); font-size: 18px; padding: 10px; border: none; background: rgba(0, 0, 0, 0.5); color: white; border-radius: 50%; cursor: pointer;">
-        &#9650;
-      </button>
-      <button id="arrowDown" style="position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); font-size: 18px; padding: 10px; border: none; background: rgba(0, 0, 0, 0.5); color: white; border-radius: 50%; cursor: pointer;">
-        &#9660;
-      </button>
-    </div>
-    
+                    In the early months, case counts were concentrated in a few countries but quickly escalated as international travel facilitated the spread. Later surges highlight how new variants contributed to periodic spikes even after initial waves had subsided. Additionally, disparities in government responses and healthcare capacity across countries in Asia and Europe resulted in varied case trajectories.
+                    
+                    This visualization allows us to explore each country's daily cases, revealing patterns influenced by pandemic fatigue, public health measures, and vaccine rollout challenges. The data provides a compelling view of COVID-19's global impact and underscores the importance of timely, coordinated responses in managing infectious diseases.
+                  </p>
+              </div>
+          </div>
+          </div>
+      </div>
+      <div style="width: 1200px; margin: 0 auto;">
   
-  
+       <!-- Container for Controls Above the Globe -->
+<div id="controlContainer" style="padding: 15px; border-radius: 8px; background-color: #f9f9f9; box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1); margin-bottom: 20px;">
 
-    <!-- Zoom controls with zoom label -->
-    <div id="zoomControls">
-      <div id="zoomLabel">Zoom: 1.0</div>
-      <span class="button-85" id="zoomIn">+</span>
-      <span class="button-85" id="zoomOut">-</span>
-    </div>
-
-    <!-- Horizontal Color Legend -->
-    <div id="legend">
-      <span id="legend-text">Low Cases &nbsp;</span>
-      <div class="legend-scale" id="legend-scale"></div>
-      <span id="legend-text">High Cases</span>
-    </div>
-
-          <!-- Search Bar -->
-          <input type="text" id="searchBar" placeholder="Search for a country (case-insensitive)">
-    <!-- Date Slider, Search, and Dropdowns -->
-    <div style="margin-top: 20px;">
-      <label for="dateSlider">Select Date:</label>
-      <input type="range" id="dateSlider" min="0" max="0" value="0" step="1" style="width: 200px;">
-      <span id="selectedDate">Date</span>
-
-      <br><br>
-
-      <!-- Dropdown menus for Europe and Asia -->
-      <select id="europeDropdown">
-        <option value="">Select a country in Europe</option>
-      </select>
-      <select id="asiaDropdown">
-        <option value="">Select a country in Asia</option>
-      </select>
-
-      <br><br>
-
-
+  <!-- Search Bar with Icon Button on Top -->
+  <div style="display: flex; justify-content: center; margin-bottom: 15px;">
+    <div style="position: relative; width: 400px;">
+      <input type="text" id="searchBar" placeholder="Search for a country (case-insensitive)" style="width: 100%; padding: 10px 40px 10px 20px; border-radius: 20px; border: 2px solid #007bff;">
+      <button id="searchButton" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; cursor: pointer;">
+        <i class="fa fa-search" style="font-size: 18px; color: #007bff;"></i>
+      </button>
     </div>
   </div>
+
+  <!-- Row of Controls (Legend, Date Slider, and Dropdowns) -->
+  <div style="display: flex; justify-content: space-around; align-items: center;">
+    <!-- Legend -->
+    <div id="legend" style="display: flex; align-items: center; margin-right: 5px;">
+      <span>Low Cases</span>
+      <div id="legendContainer" style="margin-top: 20px;"></div>
+      <span>High Cases</span>
+    </div>
+    <!-- Date Slider with Label Above -->
+    <div class="date-slider-container">
+      <label for="dateSlider">Select Date:</label>
+      <input type="range" id="dateSlider" min="0" max="0" value="0" step="1">
+      <span id="selectedDate">2019-12-31</span>
+    </div>
+    <!-- Dropdowns for Country Selection -->
+    <div style="margin-left: 5px;">
+      <select id="europeDropdown" style="display: block; margin-bottom: 10px;">
+        <option value="">Select a country in Europe</option>
+      </select>
+      <select id="asiaDropdown" style="display: block;">
+        <option value="">Select a country in Asia</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<!-- Font Awesome for the search icon -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+      
+        <!-- Globe canvas with tooltip and controls -->
+        <div style="position: relative; display: inline-block;">
+          <canvas id="globeCanvas" width="1200" height="700"></canvas>
+      
+        
+      
+          <!-- Zoom controls inside the globe at the top-right corner -->
+          <div id="zoomControls" style="position: absolute; top: 20px; right: 20px; display: flex; flex-direction: column; align-items: center;">
+            <div id="zoomLabel">Zoom: 1.0</div>
+            <span class="custom-btn btn-5" id="zoomIn">+</span>
+            <span class="custom-btn btn-5" id="zoomOut">-</span>
+          </div>
+      
+          <!-- Arrow buttons for navigation -->
+          <button id="arrowLeft" style="position: absolute; left: -20px; top: 50%; transform: translateY(-50%); background: rgba(0, 0, 0, 0.5); border-radius: 50%; color: white;">&#9664;</button>
+          <button id="arrowRight" style="position: absolute; right: -20px; top: 50%; transform: translateY(-50%); background: rgba(0, 0, 0, 0.5); border-radius: 50%; color: white;">&#9654;</button>
+          <button id="arrowUp" style="position: absolute; left: 50%; top: -20px; transform: translateX(-50%); background: rgba(0, 0, 0, 0.5); border-radius: 50%; color: white;">&#9650;</button>
+          <button id="arrowDown" style="position: absolute; left: 50%; bottom: -20px; transform: translateX(-50%); background: rgba(0, 0, 0, 0.5); border-radius: 50%; color: white;">&#9660;</button>
+        </div>
+      </div>
+      </div>
+      
+
 
 
   <footer>
