@@ -1,134 +1,154 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <!-- basic -->
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <!-- mobile metas -->
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="viewport" content="initial-scale=1, maximum-scale=1">
-        <!-- site metas -->
-        <title>Covid Data Visualization</title>
-        <meta name="keywords" content="">
-        <meta name="description" content="">
-        <meta name="author" content="">
-        <!-- bootstrap css -->
-        <link rel="stylesheet" href="css/bootstrap.min.css">
-        <!-- style css -->
-        <link rel="stylesheet" href="css/style.css">
-        <!-- Responsive-->
-        <link rel="stylesheet" href="css/responsive.css">
-        <!-- fevicon -->
-        <link rel="icon" href="images/favicon_io_covid/android-chrome-512x512.png" type="image/png" />
-        <!-- Scrollbar Custom CSS -->
-        <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
-        <link rel="stylesheet" href="css/owl.carousel.min.css"> 
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css" media="screen">
-        <link rel="stylesheet" href="https://rawgit.com/LeshikJanz/libraries/master/Bootstrap/baguetteBox.min.css">
-        <script src="https://d3js.org/d3.v6.min.js"></script>
-    </head>
-    <style>
-        .chart-container {
-            font-family: Arial, sans-serif;
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .bar {
-            transition: fill 0.3s;
-        }
-        .bar:hover {
-            opacity: 0.8;
-        }
-        .axis-label {
-            font-size: 12px;
-            fill: #666;
-        }
-        .chart-title {
-            font-size: 20px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .tooltip {
-            position: absolute;
-            padding: 10px;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            pointer-events: none;
-            font-size: 14px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .legend {
-            font-size: 12px;
-        }
-        .controls {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        button {
-            padding: 8px 16px;
-            margin: 0 5px;
-            cursor: pointer;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background: #f8f8f8;
-        }
-        button:hover {
-            background: #eee;
-        }
-        
-    </style>
-    <link rel="stylesheet" href="css/btncss.css">
-    <!-- body -->
-    <body class="main-layout">
-        <!-- loader  -->
-        <div class="loader_bg">
-            <div class="loader"><img src="images/loading.gif" alt="#"/></div>
-        </div>
-        <!-- end loader -->
-        <!-- top -->
-        <!-- header -->
-            <header class="header-area">
-                <!-- <div class="left">
+
+<head>
+    <!-- basic -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- mobile metas -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <!-- site metas -->
+    <title>Covid Data Visualization</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!-- bootstrap css -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- style css -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Responsive-->
+    <link rel="stylesheet" href="css/responsive.css">
+    <!-- fevicon -->
+    <link rel="icon" href="images/favicon_io_covid/android-chrome-512x512.png" type="image/png" />
+    <!-- Scrollbar Custom CSS -->
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
+    <link rel="stylesheet" href="css/owl.carousel.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css"
+        media="screen">
+    <link rel="stylesheet" href="https://rawgit.com/LeshikJanz/libraries/master/Bootstrap/baguetteBox.min.css">
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+</head>
+<style>
+    .chart-container {
+        font-family: Arial, sans-serif;
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .bar {
+        transition: fill 0.3s;
+    }
+
+    .bar:hover {
+        opacity: 0.8;
+    }
+
+    .axis-label {
+        font-size: 12px;
+        fill: #666;
+    }
+
+    .chart-title {
+        font-size: 20px;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .tooltip {
+        position: absolute;
+        padding: 10px;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        pointer-events: none;
+        font-size: 14px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .legend {
+        font-size: 12px;
+    }
+
+    .controls {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    button {
+        padding: 8px 16px;
+        margin: 0 5px;
+        cursor: pointer;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background: #f8f8f8;
+    }
+
+    button:hover {
+        background: #eee;
+    }
+
+    .top_infomation {
+        list-style: none;
+        padding: 0;
+        margin-left: -10px;
+        /* Adjust this value as needed to shift left */
+        color: #fff;
+        /* Adjust text color as needed */
+    }
+</style>
+<link rel="stylesheet" href="css/btncss.css">
+<!-- body -->
+
+<body class="main-layout">
+    <!-- loader  -->
+    <div class="loader_bg">
+        <div class="loader"><img src="images/loading.gif" alt="#" /></div>
+    </div>
+    <!-- end loader -->
+    <!-- top -->
+    <!-- header -->
+    <header class="header-area">
+        <!-- <div class="left">
                     <a href="Javascript:void(0)"><i class="fa fa-search" aria-hidden="true"></i></a>
                 </div>
                 <div class="right">
                     <a href="Javascript:void(0)"><i class="fa fa-user" aria-hidden="true"></i></a>
                 </div> -->
-                <div class="container">
-                    <div class="row d_flex">
-                        <div class="col-sm-3 logo_sm">
-                            <div class="logo">
-                            <a href="index.html"></a>
-                            </div>
-                        </div>
-                        <div class="col-lg-10 offset-lg-1 col-md-12 col-sm-9">
-                            <div class="navbar-area">
-                            <nav class="site-navbar">
-                                <ul>
-                                    <li><a class="active" href="index.html">Home</a></li>
-                                    <li><a href="dataset2.html">Mortality</a></li>
-                                    <li><a href="world-map.html" class="logo_midle">WorldMap</a></li>
-                                    <li><a href="dataset3.html" >Resilience</a></li>
-                                    <li><a href="dataset4.html">Vaccination</a></li>
-                                    <li><a href="map.html" >Death</a></li>
-                                </ul>
-                                <button class="nav-toggler">
-                                <span></span>
-                                </button>
-                            </nav>
-                            </div>
-                        </div>
+        <div class="container">
+            <div class="row d_flex">
+                <div class="col-sm-3 logo_sm">
+                    <div class="logo">
+                        <a href="index.html"></a>
                     </div>
                 </div>
-            </header>
-        <!-- end header -->
-        <div class="full_bg">
-            <!-- header inner -->
-            <div class="section">
-                <!-- carousel code -->
-                <div id="banner1" class="carousel slide slider_main">
+                <div class="col-lg-10 offset-lg-1 col-md-12 col-sm-9">
+                    <div class="navbar-area">
+                        <nav class="site-navbar">
+                            <ul>
+                                <li><a class="active" href="index.html">Home</a></li>
+                                <li><a href="dataset2.html">Mortality</a></li>
+                                <li><a href="world-map.html" class="logo_midle">WorldMap</a></li>
+                                <li><a href="dataset3.html">Resilience</a></li>
+                                <li><a href="dataset4.html">Vaccination</a></li>
+                                <li><a href="map.html">Death</a></li>
+                            </ul>
+                            <button class="nav-toggler">
+                                <span></span>
+                            </button>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- end header -->
+    <div class="full_bg">
+        <!-- header inner -->
+        <div class="section">
+            <!-- carousel code -->
+            <div id="banner1" class="carousel slide slider_main">
                 <ol class="carousel-indicators ">
                     <li data-target="#banner1" data-slide-to="0" class="indicator-li-1">01</li>
                     <li data-target="#banner1" data-slide-to="1" class="">02</li>
@@ -139,13 +159,13 @@
                     <div class="carousel-item active">
                         <div class="carousel-caption cuplle">
                             <div class="container">
-                            <div class="row">
-                                <div class="col-md-8">
-                                    <div class="photog">
-                                        <h1>COVID-19 disrupted lives across Asia and Europe.</h1>
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="photog">
+                                            <h1>COVID-19 disrupted lives across Asia and Europe.</h1>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
                             </div>
                         </div>
                     </div>
@@ -153,13 +173,13 @@
                     <div class="carousel-item">
                         <div class="carousel-caption cuplle">
                             <div class="container">
-                            <div class="row">
-                                <div class="col-md-8">
-                                    <div class="photog">
-                                        <h1>COVID-19 affected Asia and Europe in distinct ways.</h1>
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="photog">
+                                            <h1>COVID-19 affected Asia and Europe in distinct ways.</h1>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
                             </div>
                         </div>
                     </div>
@@ -167,88 +187,97 @@
                     <div class="carousel-item">
                         <div class="carousel-caption cuplle">
                             <div class="container">
-                            <div class="row">
-                                <div class="col-md-8">
-                                    <div class="photog">
-                                        <h1>Both regions responded with diverse health measures.</h1>
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="photog">
+                                            <h1>Both regions responded with diverse health measures.</h1>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <!-- controls -->
                 <a class="carousel-control-prev" href="#banner1" role="button" data-slide="prev">
-                <i class="fa fa-angle-left" aria-hidden="true"></i>
-                <span class="sr-only">Previous</span>
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>
+                    <span class="sr-only">Previous</span>
                 </a>
                 <a class="carousel-control-next" href="#banner1" role="button" data-slide="next">
-                <i class="fa fa-angle-right" aria-hidden="true"></i>
-                <span class="sr-only">Next</span>
+                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                    <span class="sr-only">Next</span>
                 </a>
-                </div>
             </div>
         </div>
-        <!-- end banner -->
-        <!-- about -->
-        <div class="about" style="background: #fff;">
-            <div class="container_width">
-                <div class="row d_flex">
-                    <div class="col-md-7">
-                        <div class="titlepage text_align_left">
-                            <h2>Population Density and COVID-19 Mortality: A Comparative Study Between Asia and Europe</h2>
-                            <p>Focus: Analyzing the relationship between population density and COVID-19 mortality rates across Asia and Europe. </p>
-                        </div>
+    </div>
+    <!-- end banner -->
+    <!-- about -->
+    <div class="about" style="background: #fff;">
+        <div class="container_width">
+            <div class="row d_flex">
+                <div class="col-md-7">
+                    <div class="titlepage text_align_left">
+                        <h2>Population Density and COVID-19 Mortality: A Comparative Study Between Asia and Europe</h2>
+                        <p>Focus: Analyzing the relationship between population density and COVID-19 mortality rates
+                            across Asia and Europe. </p>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- end about -->
+    </div>
+    <!-- end about -->
 
-        <!-- coronata -->
-        <div class="coronata">
-            <div class="container">
-                <div class="row d_flex grid">
+    <!-- coronata -->
+    <div class="coronata">
+        <div class="container">
+            <div class="row d_flex grid">
                 <div class="col-md-7">
                     <div class="coronata_img text_align_center">
-                        <figure><img src="images/corona.png" alt="#"/></figure>
+                        <figure><img src="images/corona.png" alt="#" /></figure>
                     </div>
                 </div>
                 <div class="col-md-5 oder1">
                     <div class="titlepage text_align_left">
                         <h2>A Comparative Analysis of Asia and Europe?</h2>
-                        <p>Focus: Exploring how the median age of populations affects COVID-19 case severity and outcomes in Asia vs. Europe. </p>
+                        <p>Focus: Exploring how the median age of populations affects COVID-19 case severity and
+                            outcomes in Asia vs. Europe. </p>
                     </div>
-                </div>
                 </div>
             </div>
         </div>
-        <!-- end coronata -->
-    
-        <!-- protect -->
-        <div class="protect">
-            <div class="container">
-                <div class="row">
+    </div>
+    <!-- end coronata -->
+
+    <!-- protect -->
+    <div class="protect">
+        <div class="container">
+            <div class="row">
                 <div class="col-md-12">
                     <div class="titlepage text_align_center">
                         <h2>COVID-19 Impact: Comparative Analysis of Total Cases in Asia and Europe</h2>
-                        <p>The COVID-19 pandemic swept through continents with profound effects, yet the spread and impact varied significantly between Asia and Europe. This comparative analysis delves into the total number of COVID-19 cases in these two regions, highlighting regional differences in infection rates, responses, and challenges faced. By examining these data points side-by-side, we gain insight into how each region navigated the crisis and the factors that influenced the spread of the virus. This analysis not only underscores the scale of the pandemic across Asia and Europe but also reveals the dynamic interplay of health policies, population density, and public compliance in shaping the trajectory of COVID-19 cases in each region.</p>
+                        <p>The COVID-19 pandemic swept through continents with profound effects, yet the spread and
+                            impact varied significantly between Asia and Europe. This comparative analysis delves into
+                            the total number of COVID-19 cases in these two regions, highlighting regional differences
+                            in infection rates, responses, and challenges faced. By examining these data points
+                            side-by-side, we gain insight into how each region navigated the crisis and the factors that
+                            influenced the spread of the virus. This analysis not only underscores the scale of the
+                            pandemic across Asia and Europe but also reveals the dynamic interplay of health policies,
+                            population density, and public compliance in shaping the trajectory of COVID-19 cases in
+                            each region.</p>
                     </div>
                 </div>
-                </div>
             </div>
-            <div class="protect_bg">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <!--  Demos -->
-                            <div class="item">
-                                <div class="protect_box text_align_center">
-                                    <div class="desktop">
-                                        <button id="toggleButton">Switch to Grouped View</button>
-                                        <div id="chart"></div>
-                                    </div>
+        </div>
+        <div class="protect_bg">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <!--  Demos -->
+                        <div class="item">
+                            <div class="protect_box text_align_center">
+                                <div class="desktop">
+                                    <button id="toggleButton">Switch to Grouped View</button>
+                                    <div id="chart"></div>
                                 </div>
                             </div>
                         </div>
@@ -256,63 +285,71 @@
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- end protect -->
+    <!-- end protect -->
 
-        <!--  footer -->
-        <footer style="margin-bottom:-25px;">
-            <div class="footer">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-lg-2 col-md-6 col-sm-6">
-                            <div class="hedingh3 text_align_left">
-                                   <h3>Resources</h3>
-                                   <ul class="menu_footer">
-                                       <li>OECD<li>
-                                       <li>WHO<li>
-                                       <li>GITHUB<li>
-                                   </ul>
-                            </div>
+    <!--  footer -->
+    <footer style="margin-bottom:-25px;">
+        <div class="footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-2 col-md-6 col-sm-6">
+                        <div class="hedingh3 text_align_left">
+                            <h3>Resources</h3>
+                            <ul class="menu_footer">
+                                <li>OECD
+                                <li>
+                                <li>WHO
+                                <li>
+                                <li>GITHUB
+                                <li>
+                            </ul>
                         </div>
-                        <div class="col-lg-3 col-md-6 col-sm-6">
-                            <div class="hedingh3 text_align_left">
-                                <h3>About</h3>
-                                <p>This visualization compares COVID-19 outcomes in Asia and Europe, focusing on socioeconomic, demographic, and healthcare factors. It highlights how differences in population density, age, GDP, and healthcare resources influenced the pandemic's impact across the two regions.</p>
-                            </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 col-sm-6">
+                        <div class="hedingh3 text_align_left">
+                            <h3>About</h3>
+                            <p>This visualization compares COVID-19 outcomes in Asia and Europe, focusing on
+                                socioeconomic, demographic, and healthcare factors. It highlights how differences in
+                                population density, age, GDP, and healthcare resources influenced the pandemic's impact
+                                across the two regions.</p>
                         </div>
-                            
-                        <div class="col-lg-3 col-md-6 col-sm-6">
-                                <div class="hedingh3  text_align_left">
-                                    <h3>Contact  Us</h3>
-                                <ul class="top_infomation">
-                                    <!-- <li><i class="fa fa-map-marker" aria-hidden="true"></i>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6 col-sm-6">
+                        <div class="hedingh3  text_align_left">
+                            <h3>Contact Us</h3>
+                            <ul class="top_infomation">
+                                <!-- <li><i class="fa fa-map-marker" aria-hidden="true"></i>
                                        Swinburne University of Technology
                                     </li> -->
-                                    <p><i class="fa fa-map-marker" aria-hidden="true"></i>  Swinburne University of Technology</p>
-                                    <p><i class="fa fa-envelope" aria-hidden="true"></i>  105273014@student.swin.edu.au</p>
-                                    <p><i class="fa fa-envelope" aria-hidden="true"></i> 105507302@student.swin.edu.au</p>
-                                    <p><i class="fa fa-envelope" aria-hidden="true"></i> 105509078@student.swin.edu.au</p>
-                                    <!-- <li><i class="fa fa-envelope" aria-hidden="true"></i>
+                                <p><i class="fa fa-map-marker" aria-hidden="true"></i> Swinburne University of
+                                    Technology</p>
+                                <p><i class="fa fa-envelope" aria-hidden="true"></i> 105273014@student.swin.edu.au</p>
+                                <p><i class="fa fa-envelope" aria-hidden="true"></i> 105507302@student.swin.edu.au</p>
+                                <p><i class="fa fa-envelope" aria-hidden="true"></i> 105509078@student.swin.edu.au</p>
+                                <!-- <li><i class="fa fa-envelope" aria-hidden="true"></i>
                                     <a href="Javascript:void(0)">Email : demo@gmail.com</a>
                                     </li> -->
-                                </ul>
-                                    
-                                
-                            </div>
+                            </ul>
+
+
                         </div>
-   
-                        <div class="col-lg-4 col-md-6 col-sm-6">
-                            <div class="hedingh3 text_align_left">
-                                <h3>countrys</h3>
-                                <div class="map">
-                                    <img src="images/map.png" alt="#"/>
-                                </div>
-                            </div>
-                        </div>
-                            
                     </div>
+
+                    <div class="col-lg-4 col-md-6 col-sm-6">
+                        <div class="hedingh3 text_align_left">
+                            <h3>countrys</h3>
+                            <div class="map">
+                                <img src="images/map.png" alt="#" />
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
-                <div class="copyright">
+            </div>
+            <div class="copyright">
                 <div class="container">
                     <div class="row">
                         <div class="col-md-8 offset-md-2">
@@ -320,16 +357,17 @@
                         </div>
                     </div>
                 </div>
-                </div>
             </div>
-        </footer>
-        <!-- end footer -->
-        <!-- Javascript files-->
-        <script src="js/jquery.min.js"></script>
-        <script src="js/bootstrap.bundle.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.8.1/baguetteBox.min.js"></script>
-        <script src="js/owl.carousel.min.js"></script>
-        <script src="js/custom.js"></script>
-        <script src="js/dataset1.js"></script>
-    </body>
+        </div>
+    </footer>
+    <!-- end footer -->
+    <!-- Javascript files-->
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.8.1/baguetteBox.min.js"></script>
+    <script src="js/owl.carousel.min.js"></script>
+    <script src="js/custom.js"></script>
+    <script src="js/dataset1.js"></script>
+</body>
+
 </html>
