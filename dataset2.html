@@ -121,9 +121,68 @@
         list-style: none;
         padding: 0;
         margin-left: -10px;
-        /* Adjust this value as needed to shift left */
         color: #fff;
-        /* Adjust text color as needed */
+    }
+
+    .logo_midle {
+        font-weight: normal;
+    }
+
+    /* Styling for the analysis paragraph */
+    .analysis-text {
+        font-size: 1.1rem;
+        color: #555;
+        max-width: 800px;
+        margin: 0 auto 20px;
+        text-align: center;
+        line-height: 1.6;
+        padding: 10px 20px;
+        background-color: #f4f4f4;
+        border-radius: 8px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Key Observations heading */
+    .comparison-heading {
+        font-size: 1.6rem;
+        color: #2c3e50;
+        text-align: center;
+        margin-top: 30px;
+        margin-bottom: 15px;
+        font-weight: bold;
+        border-bottom: 3px solid #2980b9;
+        display: inline-block;
+        padding-bottom: 5px;
+    }
+
+    /* Styling for the list */
+    .comparison-list {
+        list-style-type: none;
+        padding: 0;
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Styling for each list item */
+    .comparison-list li {
+        font-size: 1.1rem;
+        color: #333;
+        margin: 10px 0;
+        line-height: 1.6;
+        padding: 10px;
+        background-color: #f9f9f9;
+        border-left: 4px solid #2980b9;
+        border-radius: 5px;
+    }
+
+    /* Highlighting the strong text in each list item */
+    .comparison-list li strong {
+        color: #2c3e50;
+        font-weight: bold;
     }
 </style>
 <!-- body -->
@@ -178,12 +237,27 @@
                 <div class="col-md-4">
                     <div class="titlepage text_align_left">
                         <h2>COVID-19 Mortality Trends: Asia vs. Europe</h2>
-                        <p>The COVID-19 pandemic impacted Asia and Europe differently, with each region adopting unique
-                            responses to control the virus. Asia, drawing on past outbreak experiences, generally saw
-                            lower death tolls due to early lockdowns and rigorous testing. In contrast, Europe faced
-                            intense waves early on, straining healthcare systems and leading to higher mortality in some
-                            countries. Comparing the death totals in these regions reveals how varied policies and
-                            health infrastructure shaped their experiences with the pandemic.</p>
+                        <div class="mortality-analysis">
+                            <p class="analysis-text">
+                                This analysis compares COVID-19 death tolls in the countries across Asia and Europe,
+                                highlighting distinct approaches and outcomes.
+                            </p>
+
+                            <h3 class="comparison-heading">Key Observations</h3>
+
+                            <ul class="comparison-list">
+                                <li><strong>Asia:</strong> Early lockdowns and extensive testing contributed to
+                                    generally lower death rates.</li>
+                                <li><strong>Europe:</strong> Initial waves hit harder, challenging healthcare systems
+                                    and resulting in higher mortality rates in some countries.</li>
+                            </ul>
+
+                            <p class="analysis-text">
+                                Examining these trends reveals how regional policies and health infrastructure
+                                influenced the pandemic’s impact in each area.
+                            </p>
+                        </div>
+
                     </div>
                 </div>
                 <div class="col-md-8">

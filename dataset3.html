@@ -92,9 +92,63 @@
         list-style: none;
         padding: 0;
         margin-left: -10px;
-        /* Adjust this value as needed to shift left */
         color: #fff;
-        /* Adjust text color as needed */
+    }
+
+    .logo_midle {
+        font-weight: normal;
+    }
+
+    .analysis-text {
+        font-size: 1.1rem;
+        color: #555;
+        max-width: 800px;
+        margin: 0 auto 20px;
+        text-align: center;
+        line-height: 1.6;
+        padding: 10px 20px;
+        background-color: #f4f4f4;
+        border-radius: 8px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .comparison-heading {
+        font-size: 1.6rem;
+        color: #2c3e50;
+        text-align: center;
+        margin-top: 30px;
+        margin-bottom: 15px;
+        font-weight: bold;
+        border-bottom: 3px solid #2980b9;
+        display: inline-block;
+        padding-bottom: 5px;
+    }
+
+    .comparison-list {
+        list-style-type: none;
+        padding: 0;
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .comparison-list li {
+        font-size: 1.1rem;
+        color: #333;
+        margin: 10px 0;
+        line-height: 1.6;
+        padding: 10px;
+        background-color: #f9f9f9;
+        border-left: 4px solid #2980b9;
+        border-radius: 5px;
+    }
+
+    .comparison-list li strong {
+        color: #2c3e50;
+        font-weight: bold;
     }
 </style>
 <!-- body -->
@@ -128,7 +182,7 @@
                                 <li><a href="index.html">Home</a></li>
                                 <li><a href="dataset2.html">Mortality</a></li>
                                 <li><a href="world-map.html" class="logo_midle">WorldMap</a></li>
-                                <li><a class="active" href="map.html">Death</a></li>
+                                <li><a href="map.html">Death</a></li>
                                 <li><a class="active" href="dataset3.html">Resilience</a></li>
                                 <li><a href="dataset4.html">Vaccination</a></li>
                             </ul>
@@ -150,15 +204,24 @@
                     <div class="titlepage text_align_left">
                         <h2>Assessing Hospital Bed Capacity in Asia and Europe in 2024: Lessons Learned from the
                             COVID-19 Pandemic</h2>
-                        <p>In 2024, the impact of COVID-19 continues to shape healthcare systems worldwide, with
-                            hospital bed capacity remaining a key focus in preparedness strategies. This table
-                            highlights disparities in hospital bed availability across populous countries in Asia and
-                            Europe, underscoring the challenges faced during the pandemic. Countries like Japan and
-                            Germany, with high hospital beds per capita, were better equipped to handle patient surges,
-                            while nations such as India and Bangladesh, with lower capacities, struggled with
-                            overcrowded facilities. As healthcare systems rebuild post-pandemic, these insights
-                            emphasize the critical need for robust, adaptable infrastructure to respond to future health
-                            crises, ensuring that all regions are better prepared for unexpected demands.</p>
+                        <div class="analysis-text">
+                            <p>This pie chart highlights disparities in hospital bed availability across populous countries
+                                in Asia and Europe, reflecting the impact of COVID-19 on healthcare systems.</p>
+                        </div>
+
+                        <h3 class="comparison-heading">Key Observations</h3>
+                        <ul class="comparison-list">
+                            <li><strong>Preparedness Disparity:</strong> Countries with higher hospital beds per capita,
+                                such as Japan and Germany, were better equipped to handle surges in patients.</li>
+                            <li><strong>Overcrowding Challenges:</strong> Nations like India and Bangladesh faced
+                                difficulties due to lower hospital bed availability, resulting in overcrowded
+                                facilities.</li>
+                            <li><strong>Post-Pandemic Rebuilding:</strong> The need for robust, adaptable healthcare
+                                infrastructure is essential for responding to future health crises.</li>
+                            <li><strong>Global Health Focus:</strong> This comparison underscores the importance of
+                                preparedness and capacity to ensure all regions are better equipped for unexpected
+                                demands.</li>
+                        </ul>
 
                     </div>
                 </div>

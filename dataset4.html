@@ -121,9 +121,63 @@
         list-style: none;
         padding: 0;
         margin-left: -10px;
-        /* Adjust this value as needed to shift left */
         color: #fff;
-        /* Adjust text color as needed */
+    }
+
+    .logo_midle {
+        font-weight: normal;
+    }
+
+    .analysis-text {
+        font-size: 1.1rem;
+        color: #555;
+        max-width: 800px;
+        margin: 0 auto 20px;
+        text-align: center;
+        line-height: 1.6;
+        padding: 10px 20px;
+        background-color: #f4f4f4;
+        border-radius: 8px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .comparison-heading {
+        font-size: 1.6rem;
+        color: #2c3e50;
+        text-align: center;
+        margin-top: 30px;
+        margin-bottom: 15px;
+        font-weight: bold;
+        border-bottom: 3px solid #2980b9;
+        display: inline-block;
+        padding-bottom: 5px;
+    }
+
+    .comparison-list {
+        list-style-type: none;
+        padding: 0;
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .comparison-list li {
+        font-size: 1.1rem;
+        color: #333;
+        margin: 10px 0;
+        line-height: 1.6;
+        padding: 10px;
+        background-color: #f9f9f9;
+        border-left: 4px solid #2980b9;
+        border-radius: 5px;
+    }
+
+    .comparison-list li strong {
+        color: #2c3e50;
+        font-weight: bold;
     }
 </style>
 <!-- body -->
@@ -179,14 +233,24 @@
                 <div class="col-md-4">
                     <div class="titlepage text_align_left">
                         <h2>Tracking Vaccination Rates: COVID-19 in Asia and Europe (2020-2024)</h2>
-                        <p>Tracking Vaccination Rates: COVID-19 in Asia and Europe (2020-2024)" highlights the journey
-                            of COVID-19 vaccination efforts across these two diverse regions over four pivotal years.
-                            This analysis captures the pace, progress, and challenges of immunization campaigns,
-                            revealing differences in access, distribution, and public uptake. By comparing Asia and
-                            Europe, we can see how regional policies, healthcare infrastructure, and public sentiment
-                            shaped vaccination rates. This story of resilience and adaptation offers insights into each
-                            region’s efforts to protect populations and curb the spread of COVID-19 through widespread
-                            vaccination.</p>
+                        <div class="analysis-text">
+                            <p>"Tracking Vaccination Rates: COVID-19 in Asia and Europe (2020-2024)" highlights the
+                                journey of COVID-19 vaccination efforts across these two diverse regions over four
+                                pivotal years.</p>
+                        </div>
+
+                        <h3 class="comparison-heading">Key Insights</h3>
+                        <ul class="comparison-list">
+                            <li><strong>Pace and Progress:</strong> Examines the speed and milestones of vaccination
+                                campaigns in both regions.</li>
+                            <li><strong>Challenges Faced:</strong> Identifies barriers to vaccination, including access,
+                                distribution, and public acceptance.</li>
+                            <li><strong>Regional Influences:</strong> Shows how policies, healthcare infrastructure, and
+                                public sentiment influenced vaccination rates.</li>
+                            <li><strong>Resilience and Adaptation:</strong> Highlights each region's efforts to protect
+                                populations and curb COVID-19 through widespread vaccination.</li>
+                        </ul>
+
                     </div>
                 </div>
                 <div class="col-md-8">

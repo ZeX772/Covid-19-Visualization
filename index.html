@@ -93,9 +93,68 @@
         list-style: none;
         padding: 0;
         margin-left: -10px;
-        /* Adjust this value as needed to shift left */
         color: #fff;
-        /* Adjust text color as needed */
+    }
+
+    .logo_midle {
+        font-weight: normal;
+    }
+
+    /* Styling for the analysis paragraph */
+    .analysis-text {
+        font-size: 1.1rem;
+        color: #555;
+        max-width: 800px;
+        margin: 0 auto;
+        text-align: center;
+        line-height: 1.6;
+        padding: 10px 20px;
+        background-color: #f4f4f4;
+        border-radius: 8px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Key Comparisons heading */
+    .comparison-heading {
+        font-size: 1.6rem;
+        color: #2c3e50;
+        text-align: center;
+        margin-top: 30px;
+        margin-bottom: 15px;
+        font-weight: bold;
+        border-bottom: 3px solid #2980b9;
+        display: inline-block;
+        padding-bottom: 5px;
+    }
+
+    /* Styling for the list */
+    .comparison-list {
+        list-style-type: none;
+        padding: 0;
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Styling for each list item */
+    .comparison-list li {
+        font-size: 1.1rem;
+        color: #333;
+        margin: 10px 0;
+        line-height: 1.6;
+        padding: 10px;
+        background-color: #f9f9f9;
+        border-left: 4px solid #2980b9;
+        border-radius: 5px;
+    }
+
+    /* Highlighting the strong text in each list item */
+    .comparison-list li strong {
+        color: #2c3e50;
+        font-weight: bold;
     }
 </style>
 <link rel="stylesheet" href="css/btncss.css">
@@ -254,16 +313,26 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="titlepage text_align_center">
-                        <h2>COVID-19 Impact: Comparative Analysis of Total Cases in Asia and Europe</h2>
-                        <p>The COVID-19 pandemic swept through continents with profound effects, yet the spread and
-                            impact varied significantly between Asia and Europe. This comparative analysis delves into
-                            the total number of COVID-19 cases in these two regions, highlighting regional differences
-                            in infection rates, responses, and challenges faced. By examining these data points
-                            side-by-side, we gain insight into how each region navigated the crisis and the factors that
-                            influenced the spread of the virus. This analysis not only underscores the scale of the
-                            pandemic across Asia and Europe but also reveals the dynamic interplay of health policies,
-                            population density, and public compliance in shaping the trajectory of COVID-19 cases in
-                            each region.</p>
+                        <h2>COVID-19 Impact: Asia vs. Europe</h2>
+
+                        <p class="analysis-text">This analysis compares the top 20 countries in Asia and Europe,
+                            focusing on total COVID-19 cases. By examining infection rates, responses, and unique
+                            challenges across these regions, we gain insights into how different factors shaped the
+                            pandemic's impact.</p>
+
+                        <h3 class="comparison-heading">Key Comparisons</h3>
+
+                        <ul class="comparison-list">
+                            <li><strong>Infection Rates:</strong> High case numbers in densely populated areas across
+                                both regions.</li>
+                            <li><strong>Health Policies:</strong> Varied lockdown and containment strategies impacted
+                                outcomes.</li>
+                            <li><strong>Population Density:</strong> Urban centers faced greater challenges in managing
+                                the virus spread.</li>
+                            <li><strong>Public Compliance:</strong> Compliance levels affected how effectively each
+                                region controlled the pandemic.</li>
+                        </ul>
+
                     </div>
                 </div>
             </div>
