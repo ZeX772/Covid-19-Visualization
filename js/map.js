@@ -55,7 +55,7 @@ d3.json("map.json").then(geojson => {
             const country = d.properties.name;
             const deaths = countryDeathData[selectedDate]?.[country] || 'No data';
     
-            console.log("Country:", country, "Deaths:", deaths);
+            console.log("Country:", country, "Deaths per million:", deaths);
     
             d3.selectAll(".country").style("opacity", 0.3);
             d3.select(this).style("opacity", 1);
